@@ -15,6 +15,7 @@ from .serializers import (
     BulkIngestSerializer,
     GatewayIngestSerializer,
     IngestSerializer,
+    PublicSensorSerializer,
     SensorCreateSerializer,
     SensorReadingSerializer,
     SensorSerializer,
@@ -233,6 +234,20 @@ class PublicSensorReadingLatestView(APIView):
         return Response(data)
 
 
+class PublicSensorListView(generics.ListAPIView):
+    """List all sensors in public spaces (no auth required)."""
+    serializer_class = PublicSensorSerializer
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+    pagination_class = None
+
+    def get_queryset(self):
+        return Sensor.objects.filter(
+            space__is_public=True,
+            is_active=True,
+        ).select_related('space', 'space__home')
+
+
 # --- Gateway ingestion (home-level key) ---
 
 
@@ -341,5 +356,4 @@ class HomeGatewayKeyView(APIView):
         home.key_hash = ''
         home.save(update_fields=['key_prefix', 'key_hash', 'updated_at'])
         return Response(status=status.HTTP_204_NO_CONTENT)
-
 

@@ -1,8 +1,14 @@
 from django.core.cache import cache
 from django.db import connection
+from django.views.generic import TemplateView
 from rest_framework import permissions, status
 from rest_framework.response import Response
 from rest_framework.views import APIView
+
+
+class PublicDashboardView(TemplateView):
+    """Public-facing dashboard showing sensor data."""
+    template_name = 'public/dashboard.html'
 
 
 class HealthCheckView(APIView):
@@ -36,4 +42,3 @@ class HealthCheckView(APIView):
 
         status_code = status.HTTP_200_OK if health['status'] == 'healthy' else status.HTTP_503_SERVICE_UNAVAILABLE
         return Response(health, status=status_code)
-

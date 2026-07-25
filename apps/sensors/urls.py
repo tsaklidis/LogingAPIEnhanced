@@ -20,6 +20,7 @@ urlpatterns = [
     path('sensors/<uuid:sensor_pk>/readings/', views.SensorReadingListView.as_view(), name='sensor-readings'),
     path('sensors/<uuid:sensor_pk>/readings/latest/', views.SensorReadingLatestView.as_view(), name='sensor-readings-latest'),
     # Public
+    path('public/sensors/', views.PublicSensorListView.as_view(), name='public-sensor-list'),
     path('public/sensors/<uuid:sensor_pk>/readings/', views.PublicSensorReadingListView.as_view(), name='public-sensor-readings'),
     path('public/sensors/<uuid:sensor_pk>/readings/latest/', views.PublicSensorReadingLatestView.as_view(), name='public-sensor-readings-latest'),
 ]

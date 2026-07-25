@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="el">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Μετρήσεις Αισθητήρων - Home Sensor Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <style>
+        body {
+            background: #1a1a2e;
+            color: #eee;
+            min-height: 100vh;
+        }
+        .circle {
+            width: 120px;
+            height: 120px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.4rem;
+            font-weight: bold;
+            margin: 0 auto;
+        }
+        .color-temp { background: linear-gradient(135deg, #ff6b6b, #ee5a24); }
+        .color-hum { background: linear-gradient(135deg, #4ecdc4, #2980b9); }
+        .color-prs { background: linear-gradient(135deg, #a29bfe, #6c5ce7); }
+        .color-bat { background: linear-gradient(135deg, #ffeaa7, #fdcb6e); color: #333; }
+        .sensor-card {
+            background: #16213e;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 1.5rem;
+        }
+        .min-max-table {
+            background: #0f3460;
+            border-radius: 8px;
+        }
+        .min-max-table td {
+            border-color: #1a1a2e;
+            color: #ddd;
+        }
+        canvas {
+            max-height: 250px;
+            margin-bottom: 1rem;
+        }
+        .footer {
+            color: #666;
+            padding: 2rem 0;
+            text-align: center;
+            font-size: 0.85rem;
+        }
+        .footer a { color: #4ecdc4; }
+        .empty-state {
+            text-align: center;
+            padding: 4rem 2rem;
+            color: #888;
+        }
+        .empty-state h2 { color: #aaa; }
+        .last-update { font-size: 0.8rem; color: #888; }
+        .sensor-title { color: #4ecdc4; }
+        .location { color: #888; font-size: 0.9rem; }
+    </style>
+</head>
+<body>
+<div class="container py-4">
+    <div class="text-center mb-4">
+        <h1>🌡️ Μετρήσεις Αισθητήρων</h1>
+        <p class="location" id="location"></p>
+    </div>
+
+    <div id="dashboard">
+        <div class="empty-state" id="loading">
+            <div class="spinner-border text-info" role="status"></div>
+            <p class="mt-3">Φόρτωση δεδομένων...</p>
+        </div>
+    </div>
+
+    <div class="footer">
+        Powered by <strong>Home Sensor Platform</strong> •
+        <a href="/api/docs/">Open API Documentation</a> •
+        <a href="https://github.com/tsaklidis/LogingAPIEnhanced">GitHub</a>
+        <br>
+        <span id="refresh-info">Αυτόματη ανανέωση κάθε 5 λεπτά</span>
+    </div>
+</div>
+
+<script>
+const API_BASE = '/api/v1';
+
+async function fetchJSON(url) {
+    const res = await fetch(url);
+    if (!res.ok) return null;
+    return res.json();
+}
+
+function formatDate(isoStr) {
+    const d = new Date(isoStr);
+    return d.toLocaleString('el-GR', { dateStyle: 'short', timeStyle: 'short' });
+}
+
+function getValueFromData(data, keys) {
+    for (const key of keys) {
+        if (data[key] !== undefined) return data[key];
+    }
+    return null;
+}
+
+function createCircle(label, value, unit, colorClass) {
+    if (value === null) return '';
+    return `
+        <div class="d-inline-block text-center mx-2 mb-3">
+            <div class="mb-1">${label}</div>
+            <div class="circle ${colorClass}">
+                <span>${value}${unit}</span>
+            </div>
+        </div>
+    `;
+}
+
+function createChart(canvasId, label, labels, data, color) {
+    const ctx = document.getElementById(canvasId);
+    if (!ctx) return;
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                label: label,
+                data: data,
+                borderColor: color,
+                backgroundColor: color + '22',
+                fill: true,
+                tension: 0.3,
+                pointRadius: 1,
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { labels: { color: '#ccc' } } },
+            scales: {
+                x: { ticks: { color: '#888', maxTicksLimit: 8 }, grid: { color: '#333' } },
+                y: { ticks: { color: '#888' }, grid: { color: '#333' } }
+            }
+        }
+    });
+}
+
+async function loadDashboard() {
+    const sensors = await fetchJSON(`${API_BASE}/public/sensors/`);
+
+    if (!sensors || sensors.length === 0) {
+        document.getElementById('dashboard').innerHTML = `
+            <div class="empty-state">
+                <h2>📡 Δεν υπάρχουν δημόσιοι αισθητήρες</h2>
+                <p>Δεν βρέθηκαν αισθητήρες σε δημόσιους χώρους.</p>
+            </div>
+        `;
+        return;
+    }
+
+    // Set location from first sensor
+    if (sensors[0].home_location) {
+        document.getElementById('location').textContent = `📍 ${sensors[0].home_location}`;
+    }
+
+    let html = '';
+
+    for (const sensor of sensors) {
+        const latest = await fetchJSON(`${API_BASE}/public/sensors/${sensor.id}/readings/latest/`);
+
+        // Fetch last 4 hours of readings
+        const since = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
+        const readingsRes = await fetchJSON(
+            `${API_BASE}/public/sensors/${sensor.id}/readings/?recorded_at_after=${since}&page_size=200`
+        );
+        const readings = readingsRes ? (readingsRes.results || readingsRes) : [];
+
+        // Extract current values
+        const data = latest ? latest.data : {};
+        const temp = getValueFromData(data, ['temperature', 'temp', 'ds18b20']);
+        const hum = getValueFromData(data, ['humidity', 'hum', 'dht22_h']);
+        const prs = getValueFromData(data, ['pressure', 'prs', 'bmp280', 'bmp180']);
+        const bat = getValueFromData(data, ['battery_percentage', 'battery', 'bat']);
+
+        // Min/Max from today's readings
+        const allTemps = readings.map(r => getValueFromData(r.data, ['temperature', 'temp', 'ds18b20'])).filter(v => v !== null);
+        const allHums = readings.map(r => getValueFromData(r.data, ['humidity', 'hum', 'dht22_h'])).filter(v => v !== null);
+        const allPrs = readings.map(r => getValueFromData(r.data, ['pressure', 'prs', 'bmp280', 'bmp180'])).filter(v => v !== null);
+
+        const chartId = sensor.id.replace(/-/g, '');
+
+        html += `
+        <div class="sensor-card">
+            <h4 class="sensor-title">${sensor.name} <small class="text-muted">(${sensor.sensor_type})</small></h4>
+            <p class="text-muted mb-3">${sensor.space_name} • ${sensor.home_name}</p>
+
+            <div class="text-center mb-3">
+                ${createCircle('Θερμοκρασία', temp !== null ? temp.toFixed(1) : null, ' °C', 'color-temp')}
+                ${createCircle('Υγρασία', hum !== null ? hum.toFixed(1) : null, ' %', 'color-hum')}
+                ${createCircle('Πίεση', prs !== null ? prs.toFixed(0) : null, ' hPa', 'color-prs')}
+                ${createCircle('Μπαταρία', bat !== null ? Math.round(bat) : null, '%', 'color-bat')}
+            </div>
+
+            ${(allTemps.length > 0 || allHums.length > 0 || allPrs.length > 0) ? `
+            <div class="min-max-table p-3 mb-3">
+                <h6>Μέγιστες / Ελάχιστες (τελευταίες 4 ώρες)</h6>
+                <table class="table table-sm mb-0">
+                    <tbody>
+                        ${allTemps.length ? `<tr><td>🌡️ Θερμοκρασία</td><td>↓ ${Math.min(...allTemps).toFixed(1)} °C / ↑ ${Math.max(...allTemps).toFixed(1)} °C</td></tr>` : ''}
+                        ${allHums.length ? `<tr><td>💧 Υγρασία</td><td>↓ ${Math.min(...allHums).toFixed(1)}% / ↑ ${Math.max(...allHums).toFixed(1)}%</td></tr>` : ''}
+                        ${allPrs.length ? `<tr><td>🔵 Πίεση</td><td>↓ ${Math.min(...allPrs).toFixed(0)} hPa / ↑ ${Math.max(...allPrs).toFixed(0)} hPa</td></tr>` : ''}
+                    </tbody>
+                </table>
+            </div>
+            ` : ''}
+
+            <div class="row">
+                ${allTemps.length ? `<div class="col-md-6"><div style="height:200px"><canvas id="chart_temp_${chartId}"></canvas></div></div>` : ''}
+                ${allHums.length ? `<div class="col-md-6"><div style="height:200px"><canvas id="chart_hum_${chartId}"></canvas></div></div>` : ''}
+                ${allPrs.length ? `<div class="col-md-6"><div style="height:200px"><canvas id="chart_prs_${chartId}"></canvas></div></div>` : ''}
+            </div>
+
+            ${latest ? `<p class="last-update mt-2">Τελευταία μέτρηση: ${formatDate(latest.recorded_at)}</p>` : ''}
+        </div>
+        `;
+    }
+
+    document.getElementById('dashboard').innerHTML = html;
+
+    // Now create charts (after DOM is updated)
+    for (const sensor of sensors) {
+        const since = new Date(Date.now() - 4 * 60 * 60 * 1000).toISOString();
+        const readingsRes = await fetchJSON(
+            `${API_BASE}/public/sensors/${sensor.id}/readings/?recorded_at_after=${since}&page_size=200`
+        );
+        const readings = readingsRes ? (readingsRes.results || readingsRes) : [];
+        if (!readings.length) continue;
+
+        // Sort chronologically
+        readings.sort((a, b) => new Date(a.recorded_at) - new Date(b.recorded_at));
+
+        const chartId = sensor.id.replace(/-/g, '');
+        const labels = readings.map(r => new Date(r.recorded_at).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' }));
+
+        const temps = readings.map(r => getValueFromData(r.data, ['temperature', 'temp', 'ds18b20']));
+        const hums = readings.map(r => getValueFromData(r.data, ['humidity', 'hum', 'dht22_h']));
+        const prs = readings.map(r => getValueFromData(r.data, ['pressure', 'prs', 'bmp280', 'bmp180']));
+
+        if (temps.some(v => v !== null)) createChart(`chart_temp_${chartId}`, 'Θερμοκρασία (°C)', labels, temps, '#ff6b6b');
+        if (hums.some(v => v !== null)) createChart(`chart_hum_${chartId}`, 'Υγρασία (%)', labels, hums, '#4ecdc4');
+        if (prs.some(v => v !== null)) createChart(`chart_prs_${chartId}`, 'Πίεση (hPa)', labels, prs, '#a29bfe');
+    }
+}
+
+// Initial load
+loadDashboard();
+
+// Auto-refresh every 5 minutes
+setInterval(() => {
+    location.reload();
+}, 5 * 60 * 1000);
+</script>
+</body>
+</html>
+

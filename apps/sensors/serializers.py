@@ -99,3 +99,12 @@ class GatewayIngestSerializer(serializers.Serializer):
         return value
 
 
+class PublicSensorSerializer(serializers.ModelSerializer):
+    """Serializer for public sensor listing."""
+    space_name = serializers.CharField(source='space.name', read_only=True)
+    home_name = serializers.CharField(source='space.home.name', read_only=True)
+    home_location = serializers.CharField(source='space.home.location', read_only=True)
+
+    class Meta:
+        model = Sensor
+        fields = ['id', 'name', 'sensor_type', 'space_name', 'home_name', 'home_location']
