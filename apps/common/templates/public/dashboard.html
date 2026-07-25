@@ -13,20 +13,27 @@
         .title-bar{background:#333;border:2px solid #5fb5b5;border-radius:8px;max-width:500px;margin:1.5rem auto;padding:1rem 2rem;text-align:center}
         .title-bar h1{font-size:1.1rem;font-weight:700;color:#e0e0e0;line-height:1.4}
 
-        .current{display:flex;justify-content:center;align-items:flex-start;gap:3rem;margin:2rem 0}
-        .current-item{text-align:center}
-        .current-item .lbl{font-size:0.85rem;color:#ccc;margin-bottom:0.5rem}
-        .circle{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.95rem;font-weight:700;color:#fff;margin:0 auto}
-        .circle-temp{background:#e06060}
-        .circle-prs{background:#b060e0}
-
-        .minmax-section{max-width:650px;margin:2rem auto;border:2px solid #5fb5b5;border-radius:8px;overflow:hidden}
-        .minmax-header{background:#5fb5b5;color:#222;padding:0.6rem 1rem;font-size:0.85rem;font-weight:600}
-        .minmax-table{width:100%;border-collapse:collapse}
-        .minmax-table td{padding:0.6rem 1rem;border-bottom:1px solid #444;font-size:0.85rem}
-        .minmax-table tr:last-child td{border-bottom:none}
-        .minmax-table td:first-child{color:#ccc;width:40%}
-        .minmax-table td:last-child{color:#e0e0e0}
+        .hero{display:grid;grid-template-columns:1fr 1fr;gap:1.2rem;max-width:650px;margin:1.5rem auto;padding:0 1rem}
+        .hero-card{background:linear-gradient(135deg,#353535 0%,#2a2a2a 100%);border:1px solid #444;border-radius:14px;padding:1.4rem 1.6rem;position:relative;overflow:hidden;transition:transform .15s}
+        .hero-card:hover{transform:translateY(-2px)}
+        .hero-card .accent{position:absolute;top:0;left:0;right:0;height:3px;border-radius:14px 14px 0 0}
+        .hero-card.temp .accent{background:linear-gradient(90deg,#e06060,#f0a060)}
+        .hero-card.prs .accent{background:linear-gradient(90deg,#7c5cbf,#b060e0)}
+        .hero-card .hero-top{display:flex;align-items:center;gap:0.7rem;margin-bottom:0.8rem}
+        .hero-card .hero-icon{font-size:1.6rem;width:42px;height:42px;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+        .hero-card.temp .hero-icon{background:rgba(224,96,96,.15)}
+        .hero-card.prs .hero-icon{background:rgba(176,96,224,.15)}
+        .hero-card .hero-label{font-size:0.7rem;color:#999;text-transform:uppercase;letter-spacing:0.06em}
+        .hero-card .hero-sensor{font-size:0.6rem;color:#666;margin-top:1px}
+        .hero-card .hero-val{font-size:2.4rem;font-weight:700;line-height:1}
+        .hero-card.temp .hero-val{color:#e8776a}
+        .hero-card.prs .hero-val{color:#c080e8}
+        .hero-card .hero-unit{font-size:1rem;font-weight:400;color:#888;margin-left:0.15rem}
+        .hero-card .hero-range{display:flex;gap:1rem;margin-top:0.7rem;font-size:0.7rem;color:#888}
+        .hero-card .hero-range span{display:flex;align-items:center;gap:0.25rem}
+        .hero-card .hero-range .lo{color:#6bc0e0}
+        .hero-card .hero-range .hi{color:#e8776a}
+        .hero-card .hero-time{font-size:0.6rem;color:#666;margin-top:0.5rem}
 
         .charts-info{max-width:650px;margin:2rem auto 1.5rem;background:#444;border-radius:6px;padding:0.7rem 1rem;font-size:0.8rem;color:#ccc;text-align:center}
 
@@ -36,22 +43,25 @@
         .chart-card .ch-legend .swatch{width:14px;height:10px;border-radius:2px;display:inline-block}
         .chart-card canvas{width:100%!important;height:200px!important}
 
-        .info-section{max-width:650px;margin:2rem auto;border:2px solid #5fb5b5;border-radius:8px;overflow:hidden}
-        .info-header{background:#444;padding:0.7rem 1rem;text-align:center;font-size:0.9rem;font-weight:600;color:#e0e0e0}
-        .info-table{width:100%;border-collapse:collapse}
-        .info-table td{padding:0.55rem 1rem;border-bottom:1px solid #444;font-size:0.8rem}
-        .info-table tr:last-child td{border-bottom:none}
-        .info-table td:first-child{color:#ccc;width:40%}
-        .info-table td:last-child{color:#e0e0e0}
-        .info-table a{color:#5fb5b5;text-decoration:none}
-        .info-table a:hover{text-decoration:underline}
+        .info-section{max-width:650px;margin:2.5rem auto;background:linear-gradient(135deg,#353535 0%,#2a2a2a 100%);border:1px solid #444;border-radius:14px;overflow:hidden;position:relative}
+        .info-section .accent{position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,#5fb5b5,#4a9a9a);border-radius:14px 14px 0 0}
+        .info-header{padding:1.2rem 1.5rem 0.6rem;font-size:0.8rem;font-weight:600;color:#e0e0e0;display:flex;align-items:center;gap:0.5rem}
+        .info-header .info-icon{font-size:1.1rem}
+        .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:0;padding:0 0.5rem 0.8rem}
+        .info-item{padding:0.6rem 1rem;border-radius:8px;transition:background .15s}
+        .info-item:hover{background:rgba(255,255,255,.03)}
+        .info-item .info-label{font-size:0.6rem;color:#777;text-transform:uppercase;letter-spacing:0.05em;margin-bottom:0.2rem}
+        .info-item .info-val{font-size:0.8rem;color:#ddd}
+        .info-item .info-val a{color:#5fb5b5;text-decoration:none;transition:color .15s}
+        .info-item .info-val a:hover{color:#7fd4d4}
+        .info-divider{grid-column:1/-1;height:1px;background:#3a3a3a;margin:0 1rem}
 
         .loading{text-align:center;padding:4rem;color:#999}
         .error{text-align:center;padding:4rem;color:#e06060}
 
         @media(max-width:700px){
             .charts-grid{grid-template-columns:1fr}
-            .current{gap:1.5rem}
+            .hero{grid-template-columns:1fr}
             body{padding:0 0.5rem 2rem}
         }
     </style>
@@ -184,26 +194,30 @@ async function load() {
     // Title
     html += `<div class="title-bar"><h1>Μετεωρολογικός σταθμός${loc ? '<br>' + loc : ''}</h1></div>`;
 
-    // Current values circles
-    html += `<div class="current">
-        <div class="current-item">
-            <div class="lbl">Θερμοκρασία</div>
-            <div class="circle circle-temp">${tempVal !== null ? tempVal.toFixed(1) + ' °C' : '--'}</div>
+    // Current values - modern cards
+    html += `<div class="hero">
+        <div class="hero-card temp">
+            <div class="accent"></div>
+            <div class="hero-top">
+                <div class="hero-icon">🌡️</div>
+                <div><div class="hero-label">Θερμοκρασία</div><div class="hero-sensor">DS18B20</div></div>
+            </div>
+            <div class="hero-val">${tempVal !== null ? tempVal.toFixed(1) : '--'}<span class="hero-unit">°C</span></div>
+            <div class="hero-range"><span class="lo">↓ ${tempMin}°</span><span class="hi">↑ ${tempMax}°</span></div>
+            <div class="hero-time">${tempLatest ? fmtDateTime(tempLatest.recorded_at) : ''}</div>
         </div>
-        <div class="current-item">
-            <div class="lbl">Βαρόμετρο</div>
-            <div class="circle circle-prs">${prsVal !== null ? prsVal.toFixed(2) + ' hPa' : '--'}</div>
+        <div class="hero-card prs">
+            <div class="accent"></div>
+            <div class="hero-top">
+                <div class="hero-icon">🔵</div>
+                <div><div class="hero-label">Βαρομετρική πίεση</div><div class="hero-sensor">BMP280</div></div>
+            </div>
+            <div class="hero-val">${prsVal !== null ? prsVal.toFixed(2) : '--'}<span class="hero-unit">hPa</span></div>
+            <div class="hero-range"><span class="lo">↓ ${prsMin}</span><span class="hi">↑ ${prsMax}</span></div>
+            <div class="hero-time">${prsLatest ? fmtDateTime(prsLatest.recorded_at) : ''}</div>
         </div>
     </div>`;
 
-    // Min/Max table
-    html += `<div class="minmax-section">
-        <div class="minmax-header">Μέγιστες/Ελάχιστες μετρήσεις ημέρας</div>
-        <table class="minmax-table">
-            <tr><td>Θερμοκρασία</td><td>↓ ${tempMin} °C / ↑ ${tempMax} °C</td></tr>
-            <tr><td>Βαρομετρική πίεση</td><td>↓ ${prsMin} hPa / ↑ ${prsMax} hPa</td></tr>
-        </table>
-    </div>`;
 
     // Charts info
     html += `<div class="charts-info">Στα διαγράμματα εμφανίζονται μετρήσεις για τις τελευταίες 4 ώρες.</div>`;
@@ -232,18 +246,20 @@ async function load() {
     }
     html += '</div>';
 
-    // Info table
+    // Info section - modern grid
     html += `<div class="info-section">
-        <div class="info-header">Πληροφορίες</div>
-        <table class="info-table">
-            <tr><td>Πόλη</td><td>${loc || '--'}</td></tr>
-            <tr><td>Ανανέωση</td><td>Κάθε 5 λεπτά</td></tr>
-            <tr><td>Τελευταία μέτρηση</td><td>${lastDate}</td></tr>
-            <tr><td>Σύνολο αισθητήρων</td><td>${sensors.length}</td></tr>
-            <tr><td>Ανοιχτά δεδομένα</td><td><a href="/api/docs/">Πληροφορίες API</a></td></tr>
-            <tr><td>Κώδικας στο Github</td><td><a href="https://github.com/tsaklidis/LogingAPIEnhanced">LogingAPI Project</a></td></tr>
-            <tr><td>Developed by</td><td><a href="https://github.com/tsaklidis">Stefanos I. Tsaklidis</a></td></tr>
-        </table>
+        <div class="accent"></div>
+        <div class="info-header"><span class="info-icon">ℹ️</span> Πληροφορίες</div>
+        <div class="info-grid">
+            <div class="info-item"><div class="info-label">Πόλη</div><div class="info-val">${loc || '--'}</div></div>
+            <div class="info-item"><div class="info-label">Ανανέωση</div><div class="info-val">Κάθε 5 λεπτά</div></div>
+            <div class="info-item"><div class="info-label">Τελευταία μέτρηση</div><div class="info-val">${lastDate}</div></div>
+            <div class="info-item"><div class="info-label">Σύνολο αισθητήρων</div><div class="info-val">${sensors.length}</div></div>
+            <div class="info-divider"></div>
+            <div class="info-item"><div class="info-label">Ανοιχτά δεδομένα</div><div class="info-val"><a href="/api/docs/">Πληροφορίες API</a></div></div>
+            <div class="info-item"><div class="info-label">Κώδικας στο Github</div><div class="info-val"><a href="https://github.com/tsaklidis/LogingAPIEnhanced">LogingAPI Project</a></div></div>
+            <div class="info-item"><div class="info-label">Developed by</div><div class="info-val"><a href="https://github.com/tsaklidis">Stefanos I. Tsaklidis</a></div></div>
+        </div>
     </div>`;
 
     document.getElementById('app').innerHTML = html;
