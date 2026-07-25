@@ -45,63 +45,59 @@
         @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
         /* Layout */
-        .main{max-width:1300px;margin:0 auto;padding:1.25rem}
+        .main{max-width:1100px;margin:0 auto;padding:1.5rem 1.25rem}
 
-        /* Summary cards */
-        .summary-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem;margin-bottom:1.5rem}
-        .s-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.25rem;display:flex;align-items:center;gap:1rem}
-        .s-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
-        .s-body{flex:1;min-width:0}
-        .s-label{font-size:.6rem;color:var(--text3);letter-spacing:.04em;margin-bottom:.2rem}
-        .s-val{font-size:1.6rem;font-weight:700;line-height:1.1}
-        .s-val .s-unit{font-size:.85rem;font-weight:400;color:var(--text2)}
-        .s-sub{font-size:.6rem;color:var(--text3);margin-top:.15rem}
-
-        .s-temp .s-icon{background:rgba(239,68,68,.12);color:var(--red)}
-        .s-temp .s-val{color:var(--red)}
-        .s-prs .s-icon{background:rgba(167,139,250,.12);color:var(--purple)}
-        .s-prs .s-val{color:var(--purple)}
-        .s-count .s-icon{background:rgba(56,189,248,.12);color:var(--accent)}
-        .s-count .s-val{color:var(--accent)}
-        .s-sig .s-icon{background:rgba(34,197,94,.12);color:var(--green)}
-        .s-sig .s-val{color:var(--green)}
+        /* Hero weather display */
+        .hero-weather{display:flex;align-items:flex-end;gap:2.5rem;padding:2rem 0 1.5rem;border-bottom:1px solid var(--border);margin-bottom:1.5rem;flex-wrap:wrap}
+        .hero-primary{flex:1;min-width:200px}
+        .hero-primary .h-label{font-size:.7rem;color:var(--text3);margin-bottom:.25rem}
+        .hero-primary .h-val{font-size:3.5rem;font-weight:800;line-height:1;color:var(--orange);letter-spacing:-.03em}
+        .hero-primary .h-val .h-unit{font-size:1.5rem;font-weight:400;color:var(--text2)}
+        .hero-primary .h-range{font-size:.7rem;color:var(--text3);margin-top:.4rem}
+        .hero-secondary{display:flex;gap:2rem;flex-wrap:wrap}
+        .hero-stat{text-align:left}
+        .hero-stat .hs-label{font-size:.6rem;color:var(--text3);margin-bottom:.15rem}
+        .hero-stat .hs-val{font-size:1.5rem;font-weight:700;line-height:1.1}
+        .hero-stat .hs-val .hs-unit{font-size:.7rem;font-weight:400;color:var(--text2)}
+        .hero-stat.prs .hs-val{color:var(--purple)}
+        .hero-stat.cnt .hs-val{color:var(--accent)}
+        .hero-stat .hs-sub{font-size:.55rem;color:var(--text3);margin-top:.1rem}
 
         /* Section labels */
-        .sec-label{font-size:.75rem;color:var(--text3);margin-bottom:.75rem;padding-left:2px;font-weight:500}
+        .sec-label{font-size:.7rem;color:var(--text3);margin:1.75rem 0 .6rem;font-weight:500;display:flex;align-items:center;gap:.4rem}
+        .sec-label::after{content:'';flex:1;height:1px;background:var(--border)}
 
-        /* Metrics grid */
-        .metrics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin-bottom:1.5rem}
-        .m-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;display:flex;align-items:center;gap:.85rem;transition:border-color .2s}
-        .m-card:hover{border-color:var(--accent)}
-        .m-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
-        .m-body{flex:1;min-width:0}
-        .m-name{font-size:.7rem;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-        .m-val{font-size:1.4rem;font-weight:700;line-height:1.15;margin-top:.1rem}
-        .m-val .m-unit{font-size:.75rem;font-weight:400;color:var(--text2)}
-        .m-sub{font-size:.55rem;color:var(--text3);margin-top:.15rem}
-        .m-range{font-size:.55rem;color:var(--text3);margin-top:.15rem}
-
-        .c-temp .m-icon{background:rgba(249,115,22,.12);color:var(--orange)}
-        .c-temp .m-val{color:var(--orange)}
-        .c-hum .m-icon{background:rgba(56,189,248,.12);color:var(--accent)}
-        .c-hum .m-val{color:var(--accent)}
-        .c-prs .m-icon{background:rgba(167,139,250,.12);color:var(--purple)}
-        .c-prs .m-val{color:var(--purple)}
-        .c-bat .m-icon{background:rgba(34,197,94,.12);color:var(--green)}
-        .c-bat .m-val{color:var(--green)}
-        .c-sig .m-icon{background:rgba(234,179,8,.12);color:var(--yellow)}
-        .c-sig .m-val{color:var(--yellow)}
-        .c-sys .m-icon{background:rgba(251,113,133,.12);color:var(--rose)}
-        .c-sys .m-val{color:var(--rose)}
+        /* Metric rows - clean list style */
+        .metric-list{display:flex;flex-direction:column;gap:1px;background:var(--border);border-radius:var(--radius);overflow:hidden;margin-bottom:1rem}
+        .ml-item{display:flex;align-items:center;padding:.85rem 1.1rem;background:var(--bg-card);gap:1rem}
+        .ml-item:hover{background:var(--bg2)}
+        .ml-dot{width:8px;height:8px;border-radius:50%;flex-shrink:0}
+        .ml-dot.temp{background:var(--orange)}
+        .ml-dot.hum{background:var(--accent)}
+        .ml-dot.prs{background:var(--purple)}
+        .ml-dot.bat{background:var(--green)}
+        .ml-dot.sig{background:var(--yellow)}
+        .ml-dot.sys{background:var(--rose)}
+        .ml-name{flex:1;font-size:.8rem;color:var(--text2)}
+        .ml-label{font-size:.65rem;color:var(--text3);width:80px;text-align:right}
+        .ml-val{font-size:1.1rem;font-weight:700;min-width:90px;text-align:right}
+        .ml-val.temp{color:var(--orange)}
+        .ml-val.hum{color:var(--accent)}
+        .ml-val.prs{color:var(--purple)}
+        .ml-val.bat{color:var(--green)}
+        .ml-val.sig{color:var(--yellow)}
+        .ml-val.sys{color:var(--rose)}
+        .ml-unit{font-size:.7rem;font-weight:400;color:var(--text3);margin-left:2px}
+        .ml-range{font-size:.6rem;color:var(--text3);min-width:100px;text-align:right}
 
         /* Charts */
-        .charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,480px),1fr));gap:.75rem;margin-bottom:1.5rem}
+        .charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,480px),1fr));gap:.75rem;margin-bottom:1rem}
         .ch-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
-        .ch-title{font-size:.8rem;font-weight:500;color:var(--text2);margin-bottom:.85rem;display:flex;align-items:center;gap:.4rem}
-        .ch-wrap{position:relative;height:220px}
+        .ch-title{font-size:.75rem;font-weight:500;color:var(--text2);margin-bottom:.85rem}
+        .ch-wrap{position:relative;height:200px}
 
         /* Footer */
-        .footer{text-align:center;padding:1.5rem 1rem;color:var(--text3);font-size:.7rem;border-top:1px solid var(--border);margin-top:1rem}
+        .footer{text-align:center;padding:2rem 1rem;color:var(--text3);font-size:.7rem;border-top:1px solid var(--border);margin-top:2rem}
         .footer a{color:var(--accent);text-decoration:none}
 
         /* States */
@@ -115,11 +111,10 @@
         @media(max-width:700px){
             .topbar{flex-wrap:wrap;gap:.5rem;padding:1rem}
             .topbar-center{order:3;width:100%;margin-top:.25rem}
-            .summary-row{grid-template-columns:repeat(2,1fr)}
-            .metrics-grid{grid-template-columns:repeat(2,1fr)}
-            .m-card{padding:.75rem}
-            .m-val{font-size:1.15rem}
-            .ch-wrap{height:170px}
+            .hero-weather{gap:1.5rem}
+            .hero-primary .h-val{font-size:2.5rem}
+            .ml-range{display:none}
+            .ch-wrap{height:160px}
         }
     </style>
 </head>
@@ -293,14 +288,16 @@ function makeChart(canvas,datasets){
     });
 }
 
-function mCard(type,icon,label,value,unit,name,min,max){
+function mRow(type,label,value,unit,name,min,max){
     if(value===null)return '';
-    const range=(min!==null&&max!==null&&Math.abs(max-min)>0.05)?`<div class="m-range">↓ ${min.toFixed(1)} / ↑ ${max.toFixed(1)}</div>`:'';
-    return `<div class="m-card c-${type}"><div class="m-icon">${icon}</div><div class="m-body">
-        <div class="m-name">${name}</div>
-        <div class="m-val">${typeof value==='number'?value.toFixed(1):value}<span class="m-unit"> ${unit}</span></div>
-        <div class="m-sub">${label}</div>${range}
-    </div></div>`;
+    const range=(min!==null&&max!==null&&Math.abs(max-min)>0.05)?`<span class="ml-range">↓${min.toFixed(1)} ↑${max.toFixed(1)}</span>`:'<span class="ml-range"></span>';
+    return `<div class="ml-item">
+        <span class="ml-dot ${type}"></span>
+        <span class="ml-name">${name}</span>
+        <span class="ml-label">${label}</span>
+        <span class="ml-val ${type}">${typeof value==='number'?value.toFixed(1):value}<span class="ml-unit">${unit}</span></span>
+        ${range}
+    </div>`;
 }
 
 // --- Sensor classification ---
@@ -373,25 +370,24 @@ async function loadDashboard(){
         if(!isSys){
             // Weather sensors
             if(temp!==null){
-                weatherCards.push(mCard('temp','🌡️',t('temperature'),temp,'°C',nm,tv.length?Math.min(...tv):null,tv.length?Math.max(...tv):null));
-                // DS18B20 is the primary outdoor temp for the hero
+                weatherCards.push(mRow('temp',t('temperature'),temp,'°C',nm,tv.length?Math.min(...tv):null,tv.length?Math.max(...tv):null));
                 if(nm.toLowerCase().includes('ds18b20')){ heroTemp=temp; heroTempRange=tv.length?{min:Math.min(...tv),max:Math.max(...tv)}:null; }
             }
-            if(hum!==null) weatherCards.push(mCard('hum','💧',t('humidity'),hum,'%',nm,hv.length?Math.min(...hv):null,hv.length?Math.max(...hv):null));
-            if(prs!==null){ weatherCards.push(mCard('prs','🔵',t('pressureLabel'),prs,'hPa',nm,pv.length?Math.min(...pv):null,pv.length?Math.max(...pv):null)); heroPrs=prs; }
-            if(bat!==null) weatherCards.push(mCard('bat','🔋',t('battery'),bat,'%',nm,null,null));
-            if(batv!==null) weatherCards.push(mCard('bat','⚡',t('voltage'),batv,'V',nm,null,null));
+            if(hum!==null) weatherCards.push(mRow('hum',t('humidity'),hum,'%',nm,hv.length?Math.min(...hv):null,hv.length?Math.max(...hv):null));
+            if(prs!==null){ weatherCards.push(mRow('prs',t('pressureLabel'),prs,'hPa',nm,pv.length?Math.min(...pv):null,pv.length?Math.max(...pv):null)); heroPrs=prs; }
+            if(bat!==null) weatherCards.push(mRow('bat',t('battery'),bat,'%',nm,null,null));
+            if(batv!==null) weatherCards.push(mRow('bat',t('voltage'),batv,'V',nm,null,null));
             // Weather charts
             if(tv.length>1){const labels=r.map(x=>fmt(x.recorded_at));wCharts.temp.push({label:nm,data:r.map(x=>gv(x.data,KEYS.temp)),labels,color:CHART_C.temp})}
             if(hv.length>1){const labels=r.map(x=>fmt(x.recorded_at));wCharts.hum.push({label:nm,data:r.map(x=>gv(x.data,KEYS.hum)),labels,color:CHART_C.hum})}
             if(pv.length>1){const labels=r.map(x=>fmt(x.recorded_at));wCharts.prs.push({label:nm,data:r.map(x=>gv(x.data,KEYS.prs)),labels,color:CHART_C.prs})}
         } else {
             // System sensors
-            if(sys!==null) sysCards.push(mCard('sys','🖥️',t('systemTemp'),sys,'°C',nm,sv.length?Math.min(...sv):null,sv.length?Math.max(...sv):null));
-            if(temp!==null) sysCards.push(mCard('sys','🌡️',t('temperature'),temp,'°C',nm,tv.length?Math.min(...tv):null,tv.length?Math.max(...tv):null));
-            if(prs!==null) sysCards.push(mCard('prs','🔵',t('pressureLabel'),prs,'hPa',nm,pv.length?Math.min(...pv):null,pv.length?Math.max(...pv):null));
-            if(sig!==null) sysCards.push(mCard('sig','📶',t('signal'),sig,'dBm',nm,null,null));
-            if(bat!==null) sysCards.push(mCard('bat','🔋',t('battery'),bat,'%',nm,null,null));
+            if(sys!==null) sysCards.push(mRow('sys',t('systemTemp'),sys,'°C',nm,sv.length?Math.min(...sv):null,sv.length?Math.max(...sv):null));
+            if(temp!==null) sysCards.push(mRow('sys',t('temperature'),temp,'°C',nm,tv.length?Math.min(...tv):null,tv.length?Math.max(...tv):null));
+            if(prs!==null) sysCards.push(mRow('prs',t('pressureLabel'),prs,'hPa',nm,pv.length?Math.min(...pv):null,pv.length?Math.max(...pv):null));
+            if(sig!==null) sysCards.push(mRow('sig',t('signal'),sig,'dBm',nm,null,null));
+            if(bat!==null) sysCards.push(mRow('bat',t('battery'),bat,'%',nm,null,null));
             // System charts
             if(sv.length>1){const labels=r.map(x=>fmt(x.recorded_at));sCharts.sys.push({label:nm,data:r.map(x=>gv(x.data,KEYS.sys)),labels,color:CHART_C.sys})}
             if(tv.length>1){const labels=r.map(x=>fmt(x.recorded_at));sCharts.sys.push({label:nm,data:r.map(x=>gv(x.data,KEYS.temp)),labels,color:CHART_C.sys})}
@@ -407,16 +403,14 @@ async function loadDashboard(){
     // Weather hero: big temperature + pressure
     let heroHtml='';
     if(heroTemp!==null || heroPrs!==null){
-        heroHtml=`<div class="summary-row">`;
-        if(heroTemp!==null){
-            const rng=heroTempRange?`<div class="s-sub">↓ ${heroTempRange.min.toFixed(1)}° / ↑ ${heroTempRange.max.toFixed(1)}°</div>`:'';
-            heroHtml+=`<div class="s-card s-temp"><div class="s-icon">🌡️</div><div class="s-body"><div class="s-label">${t('temperature')} (DS18B20)</div><div class="s-val">${heroTemp.toFixed(1)}<span class="s-unit">°C</span></div>${rng}</div></div>`;
-        }
-        if(heroPrs!==null){
-            heroHtml+=`<div class="s-card s-prs"><div class="s-icon">🔵</div><div class="s-body"><div class="s-label">${t('pressureLabel')}</div><div class="s-val">${heroPrs.toFixed(0)}<span class="s-unit"> hPa</span></div></div></div>`;
-        }
-        heroHtml+=`<div class="s-card s-count"><div class="s-icon">📡</div><div class="s-body"><div class="s-label">${t('sensors')}</div><div class="s-val">${allData.length}</div><div class="s-sub">${t('active')}</div></div></div>`;
-        heroHtml+=`</div>`;
+        heroHtml=`<div class="hero-weather"><div class="hero-primary">`;
+        heroHtml+=`<div class="h-label">${t('temperature')}</div>`;
+        heroHtml+=`<div class="h-val">${heroTemp!==null?heroTemp.toFixed(1):'--'}<span class="h-unit">°C</span></div>`;
+        if(heroTempRange) heroHtml+=`<div class="h-range">↓ ${heroTempRange.min.toFixed(1)}° / ↑ ${heroTempRange.max.toFixed(1)}°</div>`;
+        heroHtml+=`</div><div class="hero-secondary">`;
+        if(heroPrs!==null) heroHtml+=`<div class="hero-stat prs"><div class="hs-label">${t('pressureLabel')}</div><div class="hs-val">${heroPrs.toFixed(0)}<span class="hs-unit"> hPa</span></div></div>`;
+        heroHtml+=`<div class="hero-stat cnt"><div class="hs-label">${t('sensors')}</div><div class="hs-val">${allData.length}</div><div class="hs-sub">${t('active')}</div></div>`;
+        heroHtml+=`</div></div>`;
     }
 
     // Weather charts
@@ -431,10 +425,10 @@ async function loadDashboard(){
 
     document.getElementById('dashboard').innerHTML=`
         ${heroHtml}
-        ${weatherCards.length?`<div class="sec-label">☀️ ${t('weather')}</div><div class="metrics-grid">${weatherCards.join('')}</div>`:''}
-        ${wChartsHtml?`<div class="sec-label">📈 ${t('weatherHistory')}</div><div class="charts-grid">${wChartsHtml}</div>`:''}
-        ${sysCards.length?`<div class="sec-label">🖥️ ${t('system')}</div><div class="metrics-grid">${sysCards.join('')}</div>`:''}
-        ${sChartsHtml?`<div class="sec-label">📊 ${t('systemHistory')}</div><div class="charts-grid">${sChartsHtml}</div>`:''}
+        ${weatherCards.length?`<div class="sec-label">${t('weather')}</div><div class="metric-list">${weatherCards.join('')}</div>`:''}
+        ${wChartsHtml?`<div class="sec-label">${t('weatherHistory')}</div><div class="charts-grid">${wChartsHtml}</div>`:''}
+        ${sysCards.length?`<div class="sec-label">${t('system')}</div><div class="metric-list">${sysCards.join('')}</div>`:''}
+        ${sChartsHtml?`<div class="sec-label">${t('systemHistory')}</div><div class="charts-grid">${sChartsHtml}</div>`:''}
     `;
 
     if(wCharts.temp.length) makeChart(document.getElementById('ch_temp'),wCharts.temp);
