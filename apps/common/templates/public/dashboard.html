@@ -38,7 +38,7 @@
         .hero-card .h-val{font-size:1.8rem;font-weight:700;line-height:1.1}
         .hero-card .h-val .h-unit{font-size:.9rem;font-weight:400;color:var(--text2)}
         .hero-card .h-sub{font-size:.55rem;color:var(--text3);margin-top:.2rem}
-        .hero-card .h-spark{position:absolute;bottom:0;right:0;width:120px;height:40px;opacity:.5}
+        .hero-card .h-spark{position:absolute;bottom:0;right:0;width:45%;height:55%;opacity:.7}
         .h-temp .h-icon{background:rgba(239,68,68,.15);color:var(--red)}
         .h-temp .h-val{color:var(--red)}
         .h-prs .h-icon{background:rgba(56,189,248,.15);color:var(--accent)}
@@ -62,7 +62,7 @@
         .wx-card .wx-val .wx-unit{font-size:.75rem;font-weight:400;color:var(--text2)}
         .wx-card .wx-sub{font-size:.55rem;color:var(--text3);margin-top:.15rem}
         .wx-card .wx-range{font-size:.5rem;color:var(--text3);margin-top:.1rem}
-        .wx-card .wx-spark{position:absolute;bottom:4px;right:8px;width:80px;height:30px;opacity:.4}
+        .wx-card .wx-spark{position:absolute;bottom:6px;right:10px;width:35%;height:40%;opacity:.6}
         .wx-prs .wx-icon{background:rgba(56,189,248,.12)}
         .wx-prs .wx-val{color:var(--accent)}
         .wx-temp .wx-icon{background:rgba(249,115,22,.12)}
@@ -98,7 +98,7 @@
         .sys-card .sy-val .sy-unit{font-size:.7rem;font-weight:400;color:var(--text2)}
         .sys-card .sy-sub{font-size:.5rem;color:var(--text3);margin-top:.1rem}
         .sys-card .sy-range{font-size:.5rem;color:var(--text3)}
-        .sys-card .sy-spark{position:absolute;bottom:4px;right:8px;width:80px;height:30px;opacity:.4}
+        .sys-card .sy-spark{position:absolute;bottom:6px;right:10px;width:35%;height:45%;opacity:.6}
         .sy-temp .sy-icon{background:rgba(251,113,133,.12);color:var(--rose)}
         .sy-temp .sy-val{color:var(--rose)}
         .sy-sig .sy-icon{background:rgba(234,179,8,.12);color:var(--yellow)}
@@ -158,6 +158,17 @@ function fmtDT(iso){return new Date(iso).toLocaleString(lang==='el'?'el-GR':'en-
 
 function isSystemSensor(name,data){const n=name.toLowerCase();if(n.includes('system')||n.includes('wifi')||n.includes('signal'))return true;if(n.includes('bmp')&&n.includes('temp'))return true;if(gv(data,KEYS.sys)!==null&&gv(data,KEYS.temp)===null)return true;return false}
 
+// BMP280 reports both temp and pressure - only pressure is weather data
+function sensorWeatherData(name,data){
+    const n=name.toLowerCase();
+    // BMP280 sensor: pressure is weather, temperature is NOT
+    if(n.includes('bmp')&&!n.includes('temp')){
+        return {prs:gv(data,KEYS.prs), temp:null, hum:null};
+    }
+    if(isSystemSensor(name,data)) return null;
+    return {temp:gv(data,KEYS.temp), hum:gv(data,KEYS.hum), prs:gv(data,KEYS.prs)};
+}
+
 function makeChart(canvas,label,data,labels,color){
     if(!canvas||!data.length)return;
     const ctx=canvas.getContext('2d');
@@ -194,22 +205,28 @@ async function loadDashboard(){
 
     for(const s of allData){
         const d=s.latest?s.latest.data:{};
-        if(isSystemSensor(s.name,d)) systemSensors.push(s);
+        const n=s.name.toLowerCase();
+        // BMP280 with pressure only → weather; BMP280 with temp → has both, pressure goes to weather, temp to system
+        const isSys=isSystemSensor(s.name,d);
+        // Put BMP280_Pressure in weather, everything else classified normally
+        if(isSys && !(n.includes('bmp')&&n.includes('pressure'))) systemSensors.push(s);
         else weatherSensors.push(s);
         if(s.latest)lastUpdate=s.latest.recorded_at;
         // Hero
         const temp=gv(d,KEYS.temp),prs=gv(d,KEYS.prs);
-        if(!isSystemSensor(s.name,d)){
-            if(temp!==null&&s.name.toLowerCase().includes('ds18b20')){
+        if(!isSys || (n.includes('bmp')&&n.includes('pressure'))){
+            if(temp!==null&&n.includes('ds18b20')){
                 heroTemp=temp;
                 const tv=s.readings.map(x=>gv(x.data,KEYS.temp)).filter(v=>v!==null);
                 heroTempRange=tv.length?{min:Math.min(...tv),max:Math.max(...tv)}:null;
             }
             if(prs!==null)heroPrs=prs;
-            // Collect for stats
-            const tv=s.readings.map(x=>gv(x.data,KEYS.temp)).filter(v=>v!==null);
+            // Collect for stats - only DS18B20 temp for weather stats
+            if(n.includes('ds18b20')){
+                const tv=s.readings.map(x=>gv(x.data,KEYS.temp)).filter(v=>v!==null);
+                if(tv.length)allWeatherTemps.push(...tv);
+            }
             const pv=s.readings.map(x=>gv(x.data,KEYS.prs)).filter(v=>v!==null);
-            if(tv.length)allWeatherTemps.push(...tv);
             if(pv.length)allWeatherPrs.push(...pv);
         }
     }
@@ -228,9 +245,11 @@ async function loadDashboard(){
     let wxCards='';
     for(const s of weatherSensors){
         const d=s.latest?s.latest.data:{};
-        const prs=gv(d,KEYS.prs),temp=gv(d,KEYS.temp),hum=gv(d,KEYS.hum);
-        const tv=s.readings.map(x=>gv(x.data,KEYS.temp)).filter(v=>v!==null);
-        const pv=s.readings.map(x=>gv(x.data,KEYS.prs)).filter(v=>v!==null);
+        const wd=sensorWeatherData(s.name,d);
+        if(!wd) continue;
+        const prs=wd.prs,temp=wd.temp,hum=wd.hum;
+        const tv=temp!==null?s.readings.map(x=>gv(x.data,KEYS.temp)).filter(v=>v!==null):[];
+        const pv=prs!==null?s.readings.map(x=>gv(x.data,KEYS.prs)).filter(v=>v!==null):[];
         if(prs!==null) wxCards+=`<div class="wx-card wx-prs"><div class="wx-icon">🔵</div><div class="wx-body"><div class="wx-name">${s.name}</div><div class="wx-val">${prs.toFixed(1)}<span class="wx-unit"> hPa</span></div><div class="wx-sub">${t('pressure')}</div>${pv.length?`<div class="wx-range">↓ ${Math.min(...pv).toFixed(1)} / ↑ ${Math.max(...pv).toFixed(1)}</div>`:''}</div><canvas class="wx-spark" id="spark_${s.id.replace(/-/g,'')}_p"></canvas></div>`;
         if(temp!==null) wxCards+=`<div class="wx-card wx-temp"><div class="wx-icon">🌡️</div><div class="wx-body"><div class="wx-name">${s.name}</div><div class="wx-val">${temp.toFixed(1)}<span class="wx-unit"> °C</span></div><div class="wx-sub">${t('temperature')}</div>${tv.length?`<div class="wx-range">↓ ${Math.min(...tv).toFixed(1)}° / ↑ ${Math.max(...tv).toFixed(1)}°</div>`:''}</div><canvas class="wx-spark" id="spark_${s.id.replace(/-/g,'')}_t"></canvas></div>`;
         if(hum!==null){const hv=s.readings.map(x=>gv(x.data,KEYS.hum)).filter(v=>v!==null);wxCards+=`<div class="wx-card wx-hum"><div class="wx-icon">💧</div><div class="wx-body"><div class="wx-name">${s.name}</div><div class="wx-val">${hum.toFixed(1)}<span class="wx-unit"> %</span></div><div class="wx-sub">${t('humidity')}</div></div><canvas class="wx-spark" id="spark_${s.id.replace(/-/g,'')}_h"></canvas></div>`}
@@ -252,15 +271,15 @@ async function loadDashboard(){
     }
     statsHtml+=`</div>`;
 
-    // Charts - ONE per sensor (no comparison)
+    // Charts - ONE per sensor (no comparison), only actual weather data
     let chartsHtml='';
     for(const s of weatherSensors){
         const r=s.readings;
-        const tv=r.map(x=>gv(x.data,KEYS.temp)).filter(v=>v!==null);
-        const pv=r.map(x=>gv(x.data,KEYS.prs)).filter(v=>v!==null);
+        const wd=sensorWeatherData(s.name,s.latest?s.latest.data:{});
+        if(!wd) continue;
         const labels=r.map(x=>fmt(x.recorded_at));
-        if(tv.length>2) chartsHtml+=`<div class="ch-card"><div class="ch-title">🌡️ ${s.name} — ${t('temperature')}</div><div class="ch-wrap"><canvas id="ch_${s.id.replace(/-/g,'')}_t"></canvas></div></div>`;
-        if(pv.length>2) chartsHtml+=`<div class="ch-card"><div class="ch-title">🔵 ${s.name} — ${t('pressure')}</div><div class="ch-wrap"><canvas id="ch_${s.id.replace(/-/g,'')}_p"></canvas></div></div>`;
+        if(wd.temp!==null){const tv=r.map(x=>gv(x.data,KEYS.temp)).filter(v=>v!==null);if(tv.length>2) chartsHtml+=`<div class="ch-card"><div class="ch-title">🌡️ ${s.name} — ${t('temperature')}</div><div class="ch-wrap"><canvas id="ch_${s.id.replace(/-/g,'')}_t"></canvas></div></div>`}
+        if(wd.prs!==null){const pv=r.map(x=>gv(x.data,KEYS.prs)).filter(v=>v!==null);if(pv.length>2) chartsHtml+=`<div class="ch-card"><div class="ch-title">🔵 ${s.name} — ${t('pressure')}</div><div class="ch-wrap"><canvas id="ch_${s.id.replace(/-/g,'')}_p"></canvas></div></div>`}
     }
 
     // System cards
@@ -294,14 +313,14 @@ async function loadDashboard(){
     // Render charts (one per sensor)
     for(const s of weatherSensors){
         const r=s.readings,id=s.id.replace(/-/g,'');
+        const wd=sensorWeatherData(s.name,s.latest?s.latest.data:{});
+        if(!wd) continue;
         const labels=r.map(x=>fmt(x.recorded_at));
-        const tv=r.map(x=>gv(x.data,KEYS.temp));
-        const pv=r.map(x=>gv(x.data,KEYS.prs));
-        if(tv.filter(v=>v!==null).length>2) makeChart(document.getElementById(`ch_${id}_t`),s.name,tv,labels,'#f97316');
-        if(pv.filter(v=>v!==null).length>2) makeChart(document.getElementById(`ch_${id}_p`),s.name,pv,labels,'#a78bfa');
+        if(wd.temp!==null){const tv=r.map(x=>gv(x.data,KEYS.temp));if(tv.filter(v=>v!==null).length>2)makeChart(document.getElementById(`ch_${id}_t`),s.name,tv,labels,'#f97316')}
+        if(wd.prs!==null){const pv=r.map(x=>gv(x.data,KEYS.prs));if(pv.filter(v=>v!==null).length>2)makeChart(document.getElementById(`ch_${id}_p`),s.name,pv,labels,'#a78bfa')}
         // Sparklines
-        if(tv.filter(v=>v!==null).length>2) sparkline(document.getElementById(`spark_${id}_t`),tv.filter(v=>v!==null).slice(-20),'#f97316');
-        if(pv.filter(v=>v!==null).length>2) sparkline(document.getElementById(`spark_${id}_p`),pv.filter(v=>v!==null).slice(-20),'#a78bfa');
+        if(wd.temp!==null){const tv=r.map(x=>gv(x.data,KEYS.temp)).filter(v=>v!==null);if(tv.length>2)sparkline(document.getElementById(`spark_${id}_t`),tv.slice(-20),'#f97316')}
+        if(wd.prs!==null){const pv=r.map(x=>gv(x.data,KEYS.prs)).filter(v=>v!==null);if(pv.length>2)sparkline(document.getElementById(`spark_${id}_p`),pv.slice(-20),'#a78bfa')}
     }
     // Hero sparklines
     const ds18=weatherSensors.find(s=>s.name.toLowerCase().includes('ds18b20'));
