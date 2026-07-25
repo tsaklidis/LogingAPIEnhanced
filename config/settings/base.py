@@ -159,6 +159,7 @@ SPECTACULAR_SETTINGS = {
     'DESCRIPTION': 'REST API for collecting, storing, and querying data from home IoT sensors.',
     'VERSION': '1.0.0',
     'SERVE_INCLUDE_SCHEMA': False,
+    'SERVE_PERMISSIONS': ['rest_framework.permissions.IsAdminUser'],
 }
 
 # Celery
