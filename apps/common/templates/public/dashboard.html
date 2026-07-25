@@ -186,6 +186,8 @@ const I18N = {
         prsChart: 'Barometric pressure — 4 hours',
         sysChart: 'System temperature — 4 hours',
         nSensors: 'sensors',
+        weatherHistory: 'Weather history (4 hours)',
+        systemHistory: 'System history (4 hours)',
     },
     el: {
         title: 'Sensor Logs',
@@ -215,6 +217,8 @@ const I18N = {
         prsChart: 'Βαρομετρική πίεση — 4 ώρες',
         sysChart: 'Θερμοκρασία συστήματος — 4 ώρες',
         nSensors: 'αισθ.',
+        weatherHistory: 'Ιστορικό καιρού (4 ώρες)',
+        systemHistory: 'Ιστορικό συστήματος (4 ώρες)',
     }
 };
 
@@ -299,6 +303,32 @@ function mCard(type,icon,label,value,unit,name,min,max){
     </div></div>`;
 }
 
+// --- Sensor classification ---
+// Weather sensors: DS18B20, BMP280_Pressure, humidity sensors, standalone temp/hum/prs
+// System sensors: System_Temperature, BMP280_Temperature, WiFi_Signal, battery, voltage
+function isSystemSensor(name, data){
+    const n = name.toLowerCase();
+    if(n.includes('system') || n.includes('wifi') || n.includes('signal')) return true;
+    // BMP280_Temperature is internal chip temp, not weather
+    if(n.includes('bmp') && n.includes('temp')) return true;
+    // If it only has system_temperature data
+    if(gv(data,KEYS.sys)!==null && gv(data,KEYS.temp)===null) return true;
+    return false;
+}
+
+function isWeatherSensor(name, data){
+    const n = name.toLowerCase();
+    // DS18B20 is the weather temperature probe
+    if(n.includes('ds18b20')) return true;
+    // BMP280_Pressure is weather barometric data
+    if(n.includes('pressure') || n.includes('bmp') && !n.includes('temp')) return true;
+    // Humidity sensors
+    if(n.includes('dht') || n.includes('hum')) return true;
+    // If sensor has temp/hum/prs and is NOT system
+    if(!isSystemSensor(name, data)) return true;
+    return false;
+}
+
 // --- Main ---
 async function loadDashboard(){
     const sensors=await fetchJSON(`${API}/public/sensors/`);
@@ -320,15 +350,17 @@ async function loadDashboard(){
         return{...s,latest,readings};
     }));
 
-    // Classify sensors
-    let weatherMetrics=[],sysMetrics=[];
-    let chartDS={temp:[],hum:[],prs:[],sys:[]};
+    // Classify & collect
+    let weatherCards=[],sysCards=[];
+    let wCharts={temp:[],hum:[],prs:[]}, sCharts={sys:[],sig:[]};
     let lastUpdate=null;
+    let heroTemp=null, heroTempRange=null, heroPrs=null;
 
     for(const s of allData){
         const d=s.latest?s.latest.data:{};
         const r=s.readings;
         const nm=s.name;
+        const isSys=isSystemSensor(nm, d);
 
         const temp=gv(d,KEYS.temp),hum=gv(d,KEYS.hum),prs=gv(d,KEYS.prs);
         const bat=gv(d,KEYS.bat),sig=gv(d,KEYS.sig),batv=gv(d,KEYS.batv),sys=gv(d,KEYS.sys);
@@ -338,70 +370,77 @@ async function loadDashboard(){
         const pv=r.map(x=>gv(x.data,KEYS.prs)).filter(v=>v!==null);
         const sv=r.map(x=>gv(x.data,KEYS.sys)).filter(v=>v!==null);
 
-        const isSys=sys!==null||(sig!==null&&temp===null&&hum===null&&prs===null);
-
         if(!isSys){
-            if(temp!==null) weatherMetrics.push(mCard('temp','🌡️',t('temperature'),temp,'°C',nm,tv.length?Math.min(...tv):null,tv.length?Math.max(...tv):null));
-            if(hum!==null) weatherMetrics.push(mCard('hum','💧',t('humidity'),hum,'%',nm,hv.length?Math.min(...hv):null,hv.length?Math.max(...hv):null));
-            if(prs!==null) weatherMetrics.push(mCard('prs','🔵',t('pressureLabel'),prs,'hPa',nm,pv.length?Math.min(...pv):null,pv.length?Math.max(...pv):null));
-            if(bat!==null) weatherMetrics.push(mCard('bat','🔋',t('battery'),bat,'%',nm,null,null));
-            if(batv!==null) weatherMetrics.push(mCard('bat','⚡',t('voltage'),batv,'V',nm,null,null));
+            // Weather sensors
+            if(temp!==null){
+                weatherCards.push(mCard('temp','🌡️',t('temperature'),temp,'°C',nm,tv.length?Math.min(...tv):null,tv.length?Math.max(...tv):null));
+                // DS18B20 is the primary outdoor temp for the hero
+                if(nm.toLowerCase().includes('ds18b20')){ heroTemp=temp; heroTempRange=tv.length?{min:Math.min(...tv),max:Math.max(...tv)}:null; }
+            }
+            if(hum!==null) weatherCards.push(mCard('hum','💧',t('humidity'),hum,'%',nm,hv.length?Math.min(...hv):null,hv.length?Math.max(...hv):null));
+            if(prs!==null){ weatherCards.push(mCard('prs','🔵',t('pressureLabel'),prs,'hPa',nm,pv.length?Math.min(...pv):null,pv.length?Math.max(...pv):null)); heroPrs=prs; }
+            if(bat!==null) weatherCards.push(mCard('bat','🔋',t('battery'),bat,'%',nm,null,null));
+            if(batv!==null) weatherCards.push(mCard('bat','⚡',t('voltage'),batv,'V',nm,null,null));
+            // Weather charts
+            if(tv.length>1){const labels=r.map(x=>fmt(x.recorded_at));wCharts.temp.push({label:nm,data:r.map(x=>gv(x.data,KEYS.temp)),labels,color:CHART_C.temp})}
+            if(hv.length>1){const labels=r.map(x=>fmt(x.recorded_at));wCharts.hum.push({label:nm,data:r.map(x=>gv(x.data,KEYS.hum)),labels,color:CHART_C.hum})}
+            if(pv.length>1){const labels=r.map(x=>fmt(x.recorded_at));wCharts.prs.push({label:nm,data:r.map(x=>gv(x.data,KEYS.prs)),labels,color:CHART_C.prs})}
+        } else {
+            // System sensors
+            if(sys!==null) sysCards.push(mCard('sys','🖥️',t('systemTemp'),sys,'°C',nm,sv.length?Math.min(...sv):null,sv.length?Math.max(...sv):null));
+            if(temp!==null) sysCards.push(mCard('sys','🌡️',t('temperature'),temp,'°C',nm,tv.length?Math.min(...tv):null,tv.length?Math.max(...tv):null));
+            if(prs!==null) sysCards.push(mCard('prs','🔵',t('pressureLabel'),prs,'hPa',nm,pv.length?Math.min(...pv):null,pv.length?Math.max(...pv):null));
+            if(sig!==null) sysCards.push(mCard('sig','📶',t('signal'),sig,'dBm',nm,null,null));
+            if(bat!==null) sysCards.push(mCard('bat','🔋',t('battery'),bat,'%',nm,null,null));
+            // System charts
+            if(sv.length>1){const labels=r.map(x=>fmt(x.recorded_at));sCharts.sys.push({label:nm,data:r.map(x=>gv(x.data,KEYS.sys)),labels,color:CHART_C.sys})}
+            if(tv.length>1){const labels=r.map(x=>fmt(x.recorded_at));sCharts.sys.push({label:nm,data:r.map(x=>gv(x.data,KEYS.temp)),labels,color:CHART_C.sys})}
         }
-        if(isSys||sys!==null){
-            if(sys!==null) sysMetrics.push(mCard('sys','🖥️',t('systemTemp'),sys,'°C',nm,sv.length?Math.min(...sv):null,sv.length?Math.max(...sv):null));
-        }
-        if(sig!==null) sysMetrics.push(mCard('sig','📶',t('signal'),sig,'dBm',nm,null,null));
-
-        // Charts
-        if(tv.length>1&&!isSys){const labels=r.map(x=>fmt(x.recorded_at));chartDS.temp.push({label:nm,data:r.map(x=>gv(x.data,KEYS.temp)),labels,color:CHART_C.temp})}
-        if(hv.length>1){const labels=r.map(x=>fmt(x.recorded_at));chartDS.hum.push({label:nm,data:r.map(x=>gv(x.data,KEYS.hum)),labels,color:CHART_C.hum})}
-        if(pv.length>1){const labels=r.map(x=>fmt(x.recorded_at));chartDS.prs.push({label:nm,data:r.map(x=>gv(x.data,KEYS.prs)),labels,color:CHART_C.prs})}
-        if(sv.length>1){const labels=r.map(x=>fmt(x.recorded_at));chartDS.sys.push({label:nm,data:r.map(x=>gv(x.data,KEYS.sys)),labels,color:CHART_C.sys})}
 
         if(s.latest) lastUpdate=s.latest.recorded_at;
     }
 
     if(lastUpdate) document.getElementById('last-update').textContent=`${t('lastUpdate')}: ${fmtDT(lastUpdate)}`;
 
-    // Summary
-    const tempS=allData.filter(s=>s.latest&&gv(s.latest.data,KEYS.temp)!==null&&gv(s.latest.data,KEYS.sys)===null);
-    const prsS=allData.filter(s=>s.latest&&gv(s.latest.data,KEYS.prs)!==null);
-    const sigS=allData.filter(s=>s.latest&&gv(s.latest.data,KEYS.sig)!==null);
+    // --- Build HTML ---
 
-    let summary='';
-    if(tempS.length){
-        const vals=tempS.map(s=>gv(s.latest.data,KEYS.temp));
-        const avg=(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
-        summary+=`<div class="s-card s-temp"><div class="s-icon">🌡️</div><div class="s-body"><div class="s-label">${t('avgTemp')}</div><div class="s-val">${avg}<span class="s-unit">°C</span></div><div class="s-sub">${vals.length} ${t('nSensors')}</div></div></div>`;
-    }
-    if(prsS.length){
-        const v=gv(prsS[0].latest.data,KEYS.prs);
-        summary+=`<div class="s-card s-prs"><div class="s-icon">🔵</div><div class="s-body"><div class="s-label">${t('pressure')}</div><div class="s-val">${v.toFixed(0)}<span class="s-unit"> hPa</span></div></div></div>`;
-    }
-    summary+=`<div class="s-card s-count"><div class="s-icon">📡</div><div class="s-body"><div class="s-label">${t('sensors')}</div><div class="s-val">${allData.length}</div><div class="s-sub">${t('active')}</div></div></div>`;
-    if(sigS.length){
-        const v=gv(sigS[0].latest.data,KEYS.sig);
-        summary+=`<div class="s-card s-sig"><div class="s-icon">📶</div><div class="s-body"><div class="s-label">${t('wifiSignal')}</div><div class="s-val">${v.toFixed(0)}<span class="s-unit"> dBm</span></div><div class="s-sub">${sigLabel(v)}</div></div></div>`;
+    // Weather hero: big temperature + pressure
+    let heroHtml='';
+    if(heroTemp!==null || heroPrs!==null){
+        heroHtml=`<div class="summary-row">`;
+        if(heroTemp!==null){
+            const rng=heroTempRange?`<div class="s-sub">↓ ${heroTempRange.min.toFixed(1)}° / ↑ ${heroTempRange.max.toFixed(1)}°</div>`:'';
+            heroHtml+=`<div class="s-card s-temp"><div class="s-icon">🌡️</div><div class="s-body"><div class="s-label">${t('temperature')} (DS18B20)</div><div class="s-val">${heroTemp.toFixed(1)}<span class="s-unit">°C</span></div>${rng}</div></div>`;
+        }
+        if(heroPrs!==null){
+            heroHtml+=`<div class="s-card s-prs"><div class="s-icon">🔵</div><div class="s-body"><div class="s-label">${t('pressureLabel')}</div><div class="s-val">${heroPrs.toFixed(0)}<span class="s-unit"> hPa</span></div></div></div>`;
+        }
+        heroHtml+=`<div class="s-card s-count"><div class="s-icon">📡</div><div class="s-body"><div class="s-label">${t('sensors')}</div><div class="s-val">${allData.length}</div><div class="s-sub">${t('active')}</div></div></div>`;
+        heroHtml+=`</div>`;
     }
 
-    // Charts HTML
-    let chartsHtml='';
-    if(chartDS.temp.length) chartsHtml+=`<div class="ch-card"><div class="ch-title">🌡️ ${t('tempChart')}</div><div class="ch-wrap"><canvas id="ch_temp"></canvas></div></div>`;
-    if(chartDS.hum.length) chartsHtml+=`<div class="ch-card"><div class="ch-title">💧 ${t('humChart')}</div><div class="ch-wrap"><canvas id="ch_hum"></canvas></div></div>`;
-    if(chartDS.prs.length) chartsHtml+=`<div class="ch-card"><div class="ch-title">🔵 ${t('prsChart')}</div><div class="ch-wrap"><canvas id="ch_prs"></canvas></div></div>`;
-    if(chartDS.sys.length) chartsHtml+=`<div class="ch-card"><div class="ch-title">🖥️ ${t('sysChart')}</div><div class="ch-wrap"><canvas id="ch_sys"></canvas></div></div>`;
+    // Weather charts
+    let wChartsHtml='';
+    if(wCharts.temp.length) wChartsHtml+=`<div class="ch-card"><div class="ch-title">🌡️ ${t('tempChart')}</div><div class="ch-wrap"><canvas id="ch_temp"></canvas></div></div>`;
+    if(wCharts.hum.length) wChartsHtml+=`<div class="ch-card"><div class="ch-title">💧 ${t('humChart')}</div><div class="ch-wrap"><canvas id="ch_hum"></canvas></div></div>`;
+    if(wCharts.prs.length) wChartsHtml+=`<div class="ch-card"><div class="ch-title">🔵 ${t('prsChart')}</div><div class="ch-wrap"><canvas id="ch_prs"></canvas></div></div>`;
+
+    // System charts
+    let sChartsHtml='';
+    if(sCharts.sys.length) sChartsHtml+=`<div class="ch-card"><div class="ch-title">🖥️ ${t('sysChart')}</div><div class="ch-wrap"><canvas id="ch_sys"></canvas></div></div>`;
 
     document.getElementById('dashboard').innerHTML=`
-        <div class="summary-row">${summary}</div>
-        ${weatherMetrics.length?`<div class="sec-label">${t('weather')}</div><div class="metrics-grid">${weatherMetrics.join('')}</div>`:''}
-        ${sysMetrics.length?`<div class="sec-label">${t('system')}</div><div class="metrics-grid">${sysMetrics.join('')}</div>`:''}
-        ${chartsHtml?`<div class="sec-label">${t('history')}</div><div class="charts-grid">${chartsHtml}</div>`:''}
+        ${heroHtml}
+        ${weatherCards.length?`<div class="sec-label">☀️ ${t('weather')}</div><div class="metrics-grid">${weatherCards.join('')}</div>`:''}
+        ${wChartsHtml?`<div class="sec-label">📈 ${t('weatherHistory')}</div><div class="charts-grid">${wChartsHtml}</div>`:''}
+        ${sysCards.length?`<div class="sec-label">🖥️ ${t('system')}</div><div class="metrics-grid">${sysCards.join('')}</div>`:''}
+        ${sChartsHtml?`<div class="sec-label">📊 ${t('systemHistory')}</div><div class="charts-grid">${sChartsHtml}</div>`:''}
     `;
 
-    if(chartDS.temp.length)makeChart(document.getElementById('ch_temp'),chartDS.temp);
-    if(chartDS.hum.length)makeChart(document.getElementById('ch_hum'),chartDS.hum);
-    if(chartDS.prs.length)makeChart(document.getElementById('ch_prs'),chartDS.prs);
-    if(chartDS.sys.length)makeChart(document.getElementById('ch_sys'),chartDS.sys);
+    if(wCharts.temp.length) makeChart(document.getElementById('ch_temp'),wCharts.temp);
+    if(wCharts.hum.length) makeChart(document.getElementById('ch_hum'),wCharts.hum);
+    if(wCharts.prs.length) makeChart(document.getElementById('ch_prs'),wCharts.prs);
+    if(sCharts.sys.length) makeChart(document.getElementById('ch_sys'),sCharts.sys);
 }
 
 applyLang();
