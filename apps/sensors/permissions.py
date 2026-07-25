@@ -10,7 +10,7 @@ class IsSensorOwner(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        sensor_pk = view.kwargs.get('sensor_pk') or view.kwargs.get('pk')
+        sensor_pk = view.kwargs.get("sensor_pk") or view.kwargs.get("pk")
         if not sensor_pk:
             return False
         return Sensor.objects.filter(
@@ -26,11 +26,10 @@ class IsSensorPublic(permissions.BasePermission):
     """
 
     def has_permission(self, request, view):
-        sensor_pk = view.kwargs.get('sensor_pk') or view.kwargs.get('pk')
+        sensor_pk = view.kwargs.get("sensor_pk") or view.kwargs.get("pk")
         if not sensor_pk:
             return False
         return Sensor.objects.filter(
             pk=sensor_pk,
             space__is_public=True,
         ).exists()
-

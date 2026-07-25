@@ -8,7 +8,6 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
@@ -17,35 +16,45 @@ class Migration(migrations.Migration):
 
     operations = [
         migrations.CreateModel(
-            name='Home',
+            name="Home",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=128)),
-                ('location', models.CharField(blank=True, max_length=255)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('owner', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='homes', to=settings.AUTH_USER_MODEL)),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("name", models.CharField(max_length=128)),
+                ("location", models.CharField(blank=True, max_length=255)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "owner",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name="homes", to=settings.AUTH_USER_MODEL
+                    ),
+                ),
             ],
             options={
-                'db_table': 'homes',
+                "db_table": "homes",
             },
         ),
         migrations.CreateModel(
-            name='Space',
+            name="Space",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=128)),
-                ('is_public', models.BooleanField(default=False)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('home', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='spaces', to='homes.home')),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("name", models.CharField(max_length=128)),
+                ("is_public", models.BooleanField(default=False)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "home",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name="spaces", to="homes.home"
+                    ),
+                ),
             ],
             options={
-                'db_table': 'spaces',
+                "db_table": "spaces",
             },
         ),
         migrations.AddIndex(
-            model_name='home',
-            index=models.Index(fields=['owner'], name='homes_owner_i_d98bc3_idx'),
+            model_name="home",
+            index=models.Index(fields=["owner"], name="homes_owner_i_d98bc3_idx"),
         ),
     ]

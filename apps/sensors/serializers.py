@@ -9,45 +9,46 @@ from .models import Sensor, SensorReading
 class SensorSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sensor
-        fields = ['id', 'space', 'name', 'sensor_type', 'is_active', 'created_at', 'updated_at']
-        read_only_fields = ['id', 'created_at', 'updated_at']
+        fields = ["id", "space", "name", "sensor_type", "is_active", "created_at", "updated_at"]
+        read_only_fields = ["id", "created_at", "updated_at"]
 
 
 class SensorCreateSerializer(serializers.ModelSerializer):
     class Meta:
         model = Sensor
-        fields = ['id', 'name', 'sensor_type', 'is_active', 'created_at']
-        read_only_fields = ['id', 'created_at']
+        fields = ["id", "name", "sensor_type", "is_active", "created_at"]
+        read_only_fields = ["id", "created_at"]
 
 
 class SensorReadingSerializer(serializers.ModelSerializer):
     class Meta:
         model = SensorReading
-        fields = ['id', 'data', 'recorded_at']
-        read_only_fields = ['id', 'sensor']
+        fields = ["id", "data", "recorded_at"]
+        read_only_fields = ["id", "sensor"]
 
 
 def _validate_recorded_at(value):
     """Shared validation for recorded_at timestamps."""
     now = timezone.now()
     if value and value > now:
-        raise serializers.ValidationError('recorded_at cannot be in the future.')
+        raise serializers.ValidationError("recorded_at cannot be in the future.")
     if value and value < now - timedelta(days=30):
-        raise serializers.ValidationError('recorded_at cannot be more than 30 days in the past.')
+        raise serializers.ValidationError("recorded_at cannot be more than 30 days in the past.")
     return value
 
 
 def _validate_sensor_data(value):
     """Shared validation for sensor data payloads."""
     if not isinstance(value, dict):
-        raise serializers.ValidationError('data must be a JSON object.')
+        raise serializers.ValidationError("data must be a JSON object.")
     if not value:
-        raise serializers.ValidationError('data cannot be empty.')
+        raise serializers.ValidationError("data cannot be empty.")
     return value
 
 
 class IngestSerializer(serializers.Serializer):
     """Serializer for single sensor data ingestion (per-sensor key auth)."""
+
     data = serializers.JSONField()
     recorded_at = serializers.DateTimeField(required=False)
 
@@ -60,11 +61,12 @@ class IngestSerializer(serializers.Serializer):
 
 class BulkIngestSerializer(serializers.ListSerializer):
     """Serializer for bulk sensor data ingestion (per-sensor key auth)."""
+
     child = IngestSerializer()
 
     def validate(self, data):
         if len(data) > 1000:
-            raise serializers.ValidationError('Maximum 1000 readings per bulk request.')
+            raise serializers.ValidationError("Maximum 1000 readings per bulk request.")
         return data
 
 
@@ -73,6 +75,7 @@ class BulkIngestSerializer(serializers.ListSerializer):
 
 class GatewayIngestItemSerializer(serializers.Serializer):
     """A single reading in a gateway ingestion payload — requires sensor_id."""
+
     sensor_id = serializers.UUIDField()
     data = serializers.JSONField()
     recorded_at = serializers.DateTimeField(required=False)
@@ -89,22 +92,24 @@ class GatewayIngestSerializer(serializers.Serializer):
     Gateway ingestion: a list of readings, each tagged with a sensor_id.
     Used by central gateway devices that collect data from multiple sensors.
     """
+
     readings = GatewayIngestItemSerializer(many=True)
 
     def validate_readings(self, value):
         if not value:
-            raise serializers.ValidationError('readings list cannot be empty.')
+            raise serializers.ValidationError("readings list cannot be empty.")
         if len(value) > 1000:
-            raise serializers.ValidationError('Maximum 1000 readings per request.')
+            raise serializers.ValidationError("Maximum 1000 readings per request.")
         return value
 
 
 class PublicSensorSerializer(serializers.ModelSerializer):
     """Serializer for public sensor listing."""
-    space_name = serializers.CharField(source='space.name', read_only=True)
-    home_name = serializers.CharField(source='space.home.name', read_only=True)
-    home_location = serializers.CharField(source='space.home.location', read_only=True)
+
+    space_name = serializers.CharField(source="space.name", read_only=True)
+    home_name = serializers.CharField(source="space.home.name", read_only=True)
+    home_location = serializers.CharField(source="space.home.location", read_only=True)
 
     class Meta:
         model = Sensor
-        fields = ['id', 'name', 'sensor_type', 'space_name', 'home_name', 'home_location']
+        fields = ["id", "name", "sensor_type", "space_name", "home_name", "home_location"]

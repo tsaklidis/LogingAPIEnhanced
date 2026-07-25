@@ -59,9 +59,9 @@ def parse_prefix(raw_key: str) -> str | None:
     Returns:
         The prefix string, or None if the key format is invalid.
     """
-    if '.' not in raw_key:
+    if "." not in raw_key:
         return None
-    prefix = raw_key.split('.', 1)[0]
+    prefix = raw_key.split(".", 1)[0]
     if not prefix:
         return None
     return prefix
@@ -69,5 +69,4 @@ def parse_prefix(raw_key: str) -> str | None:
 
 def _hash_key(raw_key: str) -> str:
     """Compute a SHA-256 hex digest of the raw key."""
-    return hashlib.sha256(raw_key.encode('utf-8')).hexdigest()
-
+    return hashlib.sha256(raw_key.encode("utf-8")).hexdigest()

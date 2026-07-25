@@ -4,24 +4,31 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('homes', '0002_home_api_key'),
+        ("homes", "0002_home_api_key"),
     ]
 
     operations = [
         migrations.RemoveField(
-            model_name='home',
-            name='api_key',
+            model_name="home",
+            name="api_key",
         ),
         migrations.AddField(
-            model_name='home',
-            name='key_hash',
-            field=models.CharField(blank=True, default='', help_text='SHA-256 hash of the full gateway API key.', max_length=64),
+            model_name="home",
+            name="key_hash",
+            field=models.CharField(
+                blank=True, default="", help_text="SHA-256 hash of the full gateway API key.", max_length=64
+            ),
         ),
         migrations.AddField(
-            model_name='home',
-            name='key_prefix',
-            field=models.CharField(blank=True, db_index=True, default='', help_text='Non-secret prefix of the gateway API key for fast DB lookup.', max_length=16),
+            model_name="home",
+            name="key_prefix",
+            field=models.CharField(
+                blank=True,
+                db_index=True,
+                default="",
+                help_text="Non-secret prefix of the gateway API key for fast DB lookup.",
+                max_length=16,
+            ),
         ),
     ]

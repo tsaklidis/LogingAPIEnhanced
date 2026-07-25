@@ -12,7 +12,7 @@ class TestPublicEndpoints:
         sensor = SensorFactory(space=space)
         SensorReadingFactory(sensor=sensor)
         response = api_client.get(
-            reverse('sensors:public-sensor-readings-latest', kwargs={'sensor_pk': sensor.pk}),
+            reverse("sensors:public-sensor-readings-latest", kwargs={"sensor_pk": sensor.pk}),
         )
         assert response.status_code == status.HTTP_200_OK
 
@@ -21,7 +21,6 @@ class TestPublicEndpoints:
         sensor = SensorFactory(space=space)
         SensorReadingFactory(sensor=sensor)
         response = api_client.get(
-            reverse('sensors:public-sensor-readings-latest', kwargs={'sensor_pk': sensor.pk}),
+            reverse("sensors:public-sensor-readings-latest", kwargs={"sensor_pk": sensor.pk}),
         )
         assert response.status_code == status.HTTP_404_NOT_FOUND
-

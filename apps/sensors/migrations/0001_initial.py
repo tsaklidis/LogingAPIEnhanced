@@ -8,42 +8,51 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     initial = True
 
     dependencies = [
-        ('homes', '0001_initial'),
+        ("homes", "0001_initial"),
     ]
 
     operations = [
         migrations.CreateModel(
-            name='Sensor',
+            name="Sensor",
             fields=[
-                ('id', models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
-                ('name', models.CharField(max_length=128)),
-                ('sensor_type', models.CharField(max_length=64)),
-                ('api_key', models.CharField(db_index=True, max_length=64, unique=True)),
-                ('is_active', models.BooleanField(default=True)),
-                ('created_at', models.DateTimeField(auto_now_add=True)),
-                ('updated_at', models.DateTimeField(auto_now=True)),
-                ('space', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='sensors', to='homes.space')),
+                ("id", models.UUIDField(default=uuid.uuid4, editable=False, primary_key=True, serialize=False)),
+                ("name", models.CharField(max_length=128)),
+                ("sensor_type", models.CharField(max_length=64)),
+                ("api_key", models.CharField(db_index=True, max_length=64, unique=True)),
+                ("is_active", models.BooleanField(default=True)),
+                ("created_at", models.DateTimeField(auto_now_add=True)),
+                ("updated_at", models.DateTimeField(auto_now=True)),
+                (
+                    "space",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name="sensors", to="homes.space"
+                    ),
+                ),
             ],
             options={
-                'db_table': 'sensors',
+                "db_table": "sensors",
             },
         ),
         migrations.CreateModel(
-            name='SensorReading',
+            name="SensorReading",
             fields=[
-                ('id', models.BigAutoField(primary_key=True, serialize=False)),
-                ('data', models.JSONField()),
-                ('recorded_at', models.DateTimeField(default=django.utils.timezone.now)),
-                ('sensor', models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, related_name='readings', to='sensors.sensor')),
+                ("id", models.BigAutoField(primary_key=True, serialize=False)),
+                ("data", models.JSONField()),
+                ("recorded_at", models.DateTimeField(default=django.utils.timezone.now)),
+                (
+                    "sensor",
+                    models.ForeignKey(
+                        on_delete=django.db.models.deletion.CASCADE, related_name="readings", to="sensors.sensor"
+                    ),
+                ),
             ],
             options={
-                'db_table': 'sensor_readings',
-                'ordering': ['-recorded_at'],
-                'indexes': [models.Index(fields=['sensor', '-recorded_at'], name='sensor_read_sensor__de20c2_idx')],
+                "db_table": "sensor_readings",
+                "ordering": ["-recorded_at"],
+                "indexes": [models.Index(fields=["sensor", "-recorded_at"], name="sensor_read_sensor__de20c2_idx")],
             },
         ),
     ]

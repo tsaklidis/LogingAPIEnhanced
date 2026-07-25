@@ -9,7 +9,7 @@ class Home(models.Model):
     owner = models.ForeignKey(
         settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='homes',
+        related_name="homes",
     )
     name = models.CharField(max_length=128)
     location = models.CharField(max_length=255, blank=True)
@@ -17,21 +17,21 @@ class Home(models.Model):
         max_length=16,
         db_index=True,
         blank=True,
-        default='',
-        help_text='Non-secret prefix of the gateway API key for fast DB lookup.',
+        default="",
+        help_text="Non-secret prefix of the gateway API key for fast DB lookup.",
     )
     key_hash = models.CharField(
         max_length=64,
         blank=True,
-        default='',
-        help_text='SHA-256 hash of the full gateway API key.',
+        default="",
+        help_text="SHA-256 hash of the full gateway API key.",
     )
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'homes'
-        indexes = [models.Index(fields=['owner'])]
+        db_table = "homes"
+        indexes = [models.Index(fields=["owner"])]
 
     def __str__(self):
         return self.name
@@ -41,17 +41,16 @@ class Home(models.Model):
         return bool(self.key_hash)
 
 
-
 class Space(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4, editable=False)
-    home = models.ForeignKey(Home, on_delete=models.CASCADE, related_name='spaces')
+    home = models.ForeignKey(Home, on_delete=models.CASCADE, related_name="spaces")
     name = models.CharField(max_length=128)
     is_public = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        db_table = 'spaces'
+        db_table = "spaces"
 
     def __str__(self):
         return f"{self.home.name} - {self.name}"

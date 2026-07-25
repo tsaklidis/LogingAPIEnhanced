@@ -4,15 +4,21 @@ from django.db import migrations, models
 
 
 class Migration(migrations.Migration):
-
     dependencies = [
-        ('homes', '0001_initial'),
+        ("homes", "0001_initial"),
     ]
 
     operations = [
         migrations.AddField(
-            model_name='home',
-            name='api_key',
-            field=models.CharField(blank=True, db_index=True, help_text='Gateway API key for centralized data ingestion from this home.', max_length=64, null=True, unique=True),
+            model_name="home",
+            name="api_key",
+            field=models.CharField(
+                blank=True,
+                db_index=True,
+                help_text="Gateway API key for centralized data ingestion from this home.",
+                max_length=64,
+                null=True,
+                unique=True,
+            ),
         ),
     ]

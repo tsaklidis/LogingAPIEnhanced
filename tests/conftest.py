@@ -51,15 +51,13 @@ def home_with_gateway(user):
 @pytest.fixture
 def gateway_setup(home_with_gateway):
     """A full gateway setup: home with key + 2 spaces + 3 sensors."""
-    space1 = SpaceFactory(home=home_with_gateway, name='Living Room')
-    space2 = SpaceFactory(home=home_with_gateway, name='Bedroom')
-    sensor1 = SensorFactory(space=space1, name='Temp Living', sensor_type='DHT22')
-    sensor2 = SensorFactory(space=space1, name='Air Quality', sensor_type='BME280')
-    sensor3 = SensorFactory(space=space2, name='Temp Bedroom', sensor_type='DHT22')
+    space1 = SpaceFactory(home=home_with_gateway, name="Living Room")
+    space2 = SpaceFactory(home=home_with_gateway, name="Bedroom")
+    sensor1 = SensorFactory(space=space1, name="Temp Living", sensor_type="DHT22")
+    sensor2 = SensorFactory(space=space1, name="Air Quality", sensor_type="BME280")
+    sensor3 = SensorFactory(space=space2, name="Temp Bedroom", sensor_type="DHT22")
     return {
-        'home': home_with_gateway,
-        'spaces': [space1, space2],
-        'sensors': [sensor1, sensor2, sensor3],
+        "home": home_with_gateway,
+        "spaces": [space1, space2],
+        "sensors": [sensor1, sensor2, sensor3],
     }
-
-

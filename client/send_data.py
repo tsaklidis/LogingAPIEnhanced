@@ -30,9 +30,9 @@ import requests
 # --- Configuration ---
 
 SCRIPT_DIR = os.path.dirname(os.path.abspath(__file__))
-CONFIG_FILE = os.path.join(SCRIPT_DIR, 'config.json')
-UNSENT_FILE = os.path.join(SCRIPT_DIR, 'unsent_data.json')
-LOG_DIR = os.path.join(SCRIPT_DIR, 'logs')
+CONFIG_FILE = os.path.join(SCRIPT_DIR, "config.json")
+UNSENT_FILE = os.path.join(SCRIPT_DIR, "unsent_data.json")
+LOG_DIR = os.path.join(SCRIPT_DIR, "logs")
 
 MAX_RETRIES = 3
 RETRY_BACKOFF = 2  # seconds, doubles each retry
@@ -48,13 +48,13 @@ def load_config():
         return json.load(f)
 
 
-def log(message, filename='client.log'):
+def log(message, filename="client.log"):
     """Append a timestamped log entry."""
     os.makedirs(LOG_DIR, exist_ok=True)
     filepath = os.path.join(LOG_DIR, filename)
-    timestamp = datetime.now().strftime('%Y-%m-%d %H:%M:%S')
+    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
     try:
-        with open(filepath, 'a') as f:
+        with open(filepath, "a") as f:
             f.write(f"[{timestamp}] {message}\n")
     except OSError:
         pass
@@ -62,21 +62,24 @@ def log(message, filename='client.log'):
 
 # --- HTTP Client ---
 
+
 class SensorClient:
     """Client for the Home Sensor Platform API."""
 
     def __init__(self, config):
-        self.base_url = config['api_url'].rstrip('/')
-        self.gateway_key = config.get('gateway_key', '')
-        self.sensors = config.get('sensors', {})
+        self.base_url = config["api_url"].rstrip("/")
+        self.gateway_key = config.get("gateway_key", "")
+        self.sensors = config.get("sensors", {})
         self.session = requests.Session()
-        self.session.headers.update({
-            'Content-Type': 'application/json',
-            'User-Agent': 'rpi-sensor-client/2.0',
-        })
+        self.session.headers.update(
+            {
+                "Content-Type": "application/json",
+                "User-Agent": "rpi-sensor-client/2.0",
+            }
+        )
 
         if self.gateway_key:
-            self.session.headers['X-Gateway-Key'] = self.gateway_key
+            self.session.headers["X-Gateway-Key"] = self.gateway_key
 
     def _request(self, method, endpoint, data=None):
         """Make an HTTP request with retries."""
@@ -84,7 +87,7 @@ class SensorClient:
 
         for attempt in range(1, MAX_RETRIES + 1):
             try:
-                if method == 'POST':
+                if method == "POST":
                     resp = self.session.post(url, json=data, timeout=30)
                 else:
                     resp = self.session.get(url, timeout=30)
@@ -94,14 +97,14 @@ class SensorClient:
                     return resp
 
                 if 400 <= resp.status_code < 500 and resp.status_code != 429:
-                    log(f"FAIL {method} {endpoint} → {resp.status_code}: {resp.text[:200]}", 'errors.log')
+                    log(f"FAIL {method} {endpoint} → {resp.status_code}: {resp.text[:200]}", "errors.log")
                     return resp
 
                 # Retryable (5xx, 429)
-                log(f"RETRY {attempt}/{MAX_RETRIES} {endpoint} → {resp.status_code}", 'errors.log')
+                log(f"RETRY {attempt}/{MAX_RETRIES} {endpoint} → {resp.status_code}", "errors.log")
 
             except requests.exceptions.RequestException as e:
-                log(f"RETRY {attempt}/{MAX_RETRIES} {endpoint} → {e}", 'errors.log')
+                log(f"RETRY {attempt}/{MAX_RETRIES} {endpoint} → {e}", "errors.log")
 
             if attempt < MAX_RETRIES:
                 time.sleep(RETRY_BACKOFF * (2 ** (attempt - 1)))
@@ -123,8 +126,8 @@ class SensorClient:
         Returns:
             True on success, False on failure (data buffered).
         """
-        payload = {'readings': readings}
-        resp = self._request('POST', '/api/v1/ingest/gateway/', data=payload)
+        payload = {"readings": readings}
+        resp = self._request("POST", "/api/v1/ingest/gateway/", data=payload)
 
         if resp and resp.status_code in (200, 201):
             log(f"Sent {len(readings)} readings via gateway")
@@ -132,7 +135,7 @@ class SensorClient:
 
         # Buffer for retry
         self._save_unsent(readings)
-        log(f"BUFFERED {len(readings)} readings for retry", 'errors.log')
+        log(f"BUFFERED {len(readings)} readings for retry", "errors.log")
         return False
 
     # --- Per-sensor ingestion (alternative) ---
@@ -146,17 +149,17 @@ class SensorClient:
             data: dict of measurements.
             recorded_at: (optional) ISO timestamp.
         """
-        headers = {'X-Sensor-Key': sensor_key}
-        payload = {'data': data}
+        headers = {"X-Sensor-Key": sensor_key}
+        payload = {"data": data}
         if recorded_at:
-            payload['recorded_at'] = recorded_at
+            payload["recorded_at"] = recorded_at
 
         # Temporarily override session headers
         old_headers = dict(self.session.headers)
         self.session.headers.update(headers)
-        self.session.headers.pop('X-Gateway-Key', None)
+        self.session.headers.pop("X-Gateway-Key", None)
 
-        resp = self._request('POST', '/api/v1/ingest/', data=payload)
+        resp = self._request("POST", "/api/v1/ingest/", data=payload)
 
         self.session.headers = old_headers
         return resp and resp.status_code in (200, 201)
@@ -167,13 +170,13 @@ class SensorClient:
         """Save failed readings to disk for later retry."""
         existing = self._load_unsent()
         for r in readings:
-            r['_buffered_at'] = datetime.now(UTC).isoformat()
+            r["_buffered_at"] = datetime.now(UTC).isoformat()
         existing.extend(readings)
         try:
-            with open(UNSENT_FILE, 'w') as f:
+            with open(UNSENT_FILE, "w") as f:
                 json.dump(existing, f)
         except OSError as e:
-            log(f"Cannot save unsent buffer: {e}", 'errors.log')
+            log(f"Cannot save unsent buffer: {e}", "errors.log")
 
     def _load_unsent(self):
         """Load buffered readings from disk."""
@@ -203,7 +206,7 @@ class SensorClient:
         cutoff = time.time() - (UNSENT_MAX_AGE_HOURS * 3600)
         fresh = []
         for r in unsent:
-            buffered = r.pop('_buffered_at', None)
+            buffered = r.pop("_buffered_at", None)
             if buffered:
                 try:
                     ts = datetime.fromisoformat(buffered).timestamp()
@@ -217,8 +220,8 @@ class SensorClient:
             self._clear_unsent()
             return
 
-        payload = {'readings': fresh}
-        resp = self._request('POST', '/api/v1/ingest/gateway/', data=payload)
+        payload = {"readings": fresh}
+        resp = self._request("POST", "/api/v1/ingest/gateway/", data=payload)
 
         if resp and resp.status_code in (200, 201):
             self._clear_unsent()
@@ -226,13 +229,14 @@ class SensorClient:
         else:
             # Re-save (without expired ones)
             try:
-                with open(UNSENT_FILE, 'w') as f:
+                with open(UNSENT_FILE, "w") as f:
                     json.dump(fresh, f)
             except OSError:
                 pass
 
 
 # --- Main entry point ---
+
 
 def main():
     config = load_config()
@@ -253,21 +257,23 @@ def main():
         signal_strength = float(sys.argv[7])
 
         # Look up sensor_id by MAC address or name
-        sensor_id = config['sensors'].get(mac) or config['sensors'].get(name)
+        sensor_id = config["sensors"].get(mac) or config["sensors"].get(name)
         if not sensor_id:
-            log(f"Unknown sensor: {mac} / {name}", 'errors.log')
+            log(f"Unknown sensor: {mac} / {name}", "errors.log")
             sys.exit(1)
 
-        readings = [{
-            'sensor_id': sensor_id,
-            'data': {
-                'temperature': temp,
-                'humidity': humidity,
-                'battery_voltage': battery,
-                'battery_percentage': battery_lvl,
-                'signal': signal_strength,
+        readings = [
+            {
+                "sensor_id": sensor_id,
+                "data": {
+                    "temperature": temp,
+                    "humidity": humidity,
+                    "battery_voltage": battery,
+                    "battery_percentage": battery_lvl,
+                    "signal": signal_strength,
+                },
             }
-        }]
+        ]
 
         client.send_gateway(readings)
 
@@ -278,6 +284,5 @@ def main():
         print("Example: python3 send_data.py AA:BB:CC:DD:EE:FF MySensor 22.5 45.0 3.1 85 -60")
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     main()
-
