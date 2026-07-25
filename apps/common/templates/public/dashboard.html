@@ -7,238 +7,263 @@
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: #0f172a; color: #e2e8f0; min-height: 100vh; }
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',sans-serif;background:#2d2d2d;color:#e0e0e0;min-height:100vh;padding-bottom:2rem}
 
-        .header { padding: 1.5rem 2rem; border-bottom: 1px solid #1e293b; display: flex; align-items: center; justify-content: space-between; }
-        .header h1 { font-size: 1.25rem; font-weight: 700; }
-        .header .location { font-size: 0.85rem; color: #94a3b8; }
-        .header .status { display: flex; align-items: center; gap: 0.4rem; font-size: 0.75rem; color: #22c55e; }
-        .header .status .dot { width: 8px; height: 8px; background: #22c55e; border-radius: 50%; animation: pulse 2s infinite; }
-        @keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.4; } }
+        .title-bar{background:#333;border:2px solid #5fb5b5;border-radius:8px;max-width:500px;margin:1.5rem auto;padding:1rem 2rem;text-align:center}
+        .title-bar h1{font-size:1.1rem;font-weight:700;color:#e0e0e0;line-height:1.4}
 
-        .container { max-width: 1000px; margin: 0 auto; padding: 2rem; }
+        .current{display:flex;justify-content:center;align-items:flex-start;gap:3rem;margin:2rem 0}
+        .current-item{text-align:center}
+        .current-item .lbl{font-size:0.85rem;color:#ccc;margin-bottom:0.5rem}
+        .circle{width:100px;height:100px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:0.95rem;font-weight:700;color:#fff;margin:0 auto}
+        .circle-temp{background:#e06060}
+        .circle-prs{background:#b060e0}
 
-        .cards { display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-bottom: 2.5rem; }
-        .card { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.5rem 2rem; }
-        .card .label { font-size: 0.75rem; color: #94a3b8; text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem; }
-        .card .value { font-size: 2.5rem; font-weight: 700; line-height: 1.2; }
-        .card .value .unit { font-size: 1rem; font-weight: 400; color: #64748b; }
-        .card .meta { font-size: 0.7rem; color: #64748b; margin-top: 0.5rem; }
-        .card.temp .value { color: #f97316; }
-        .card.pressure .value { color: #38bdf8; }
+        .minmax-section{max-width:650px;margin:2rem auto;border:2px solid #5fb5b5;border-radius:8px;overflow:hidden}
+        .minmax-header{background:#5fb5b5;color:#222;padding:0.6rem 1rem;font-size:0.85rem;font-weight:600}
+        .minmax-table{width:100%;border-collapse:collapse}
+        .minmax-table td{padding:0.6rem 1rem;border-bottom:1px solid #444;font-size:0.85rem}
+        .minmax-table tr:last-child td{border-bottom:none}
+        .minmax-table td:first-child{color:#ccc;width:40%}
+        .minmax-table td:last-child{color:#e0e0e0}
 
-        .chart-section { margin-bottom: 2rem; }
-        .chart-section h2 { font-size: 0.85rem; font-weight: 600; color: #94a3b8; margin-bottom: 1rem; }
-        .chart-box { background: #1e293b; border: 1px solid #334155; border-radius: 12px; padding: 1.25rem; margin-bottom: 1.5rem; }
-        .chart-box canvas { width: 100%; height: 250px; }
+        .charts-info{max-width:650px;margin:2rem auto 1.5rem;background:#444;border-radius:6px;padding:0.7rem 1rem;font-size:0.8rem;color:#ccc;text-align:center}
 
-        .footer { text-align: center; padding: 2rem; font-size: 0.7rem; color: #475569; border-top: 1px solid #1e293b; }
-        .footer a { color: #38bdf8; text-decoration: none; }
+        .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:950px;margin:0 auto 2rem;padding:0 1rem}
+        .chart-card{background:#333;border:1px solid #555;border-radius:8px;padding:1rem}
+        .chart-card .ch-legend{display:flex;align-items:center;gap:0.4rem;justify-content:center;margin-bottom:0.5rem;font-size:0.75rem;color:#ccc}
+        .chart-card .ch-legend .swatch{width:14px;height:10px;border-radius:2px;display:inline-block}
+        .chart-card canvas{width:100%!important;height:200px!important}
 
-        .loading { text-align: center; padding: 4rem 2rem; color: #64748b; }
-        .error { text-align: center; padding: 4rem 2rem; color: #ef4444; }
+        .info-section{max-width:650px;margin:2rem auto;border:2px solid #5fb5b5;border-radius:8px;overflow:hidden}
+        .info-header{background:#444;padding:0.7rem 1rem;text-align:center;font-size:0.9rem;font-weight:600;color:#e0e0e0}
+        .info-table{width:100%;border-collapse:collapse}
+        .info-table td{padding:0.55rem 1rem;border-bottom:1px solid #444;font-size:0.8rem}
+        .info-table tr:last-child td{border-bottom:none}
+        .info-table td:first-child{color:#ccc;width:40%}
+        .info-table td:last-child{color:#e0e0e0}
+        .info-table a{color:#5fb5b5;text-decoration:none}
+        .info-table a:hover{text-decoration:underline}
 
-        @media (max-width: 600px) {
-            .cards { grid-template-columns: 1fr; }
-            .container { padding: 1rem; }
-            .card .value { font-size: 2rem; }
+        .loading{text-align:center;padding:4rem;color:#999}
+        .error{text-align:center;padding:4rem;color:#e06060}
+
+        @media(max-width:700px){
+            .charts-grid{grid-template-columns:1fr}
+            .current{gap:1.5rem}
+            body{padding:0 0.5rem 2rem}
         }
     </style>
 </head>
 <body>
 
-<div class="header">
-    <div>
-        <h1>🌡️ Sensor Dashboard</h1>
-        <div class="location" id="location"></div>
-    </div>
-    <div class="status"><span class="dot"></span> Live</div>
-</div>
-
-<div class="container">
-    <div id="content">
-        <div class="loading">Loading sensor data...</div>
-    </div>
-</div>
-
-<div class="footer">
-    Home Sensor Platform · <a href="/api/docs/">API Docs</a> · <a href="https://github.com/tsaklidis/LogingAPIEnhanced">GitHub</a>
-</div>
+<div id="app"><div class="loading">Φόρτωση δεδομένων...</div></div>
 
 <script>
 const API = '/api/v1';
 
-async function fetchJSON(url) {
-    try {
-        const res = await fetch(url);
-        if (!res.ok) return null;
-        return res.json();
-    } catch (e) {
-        return null;
-    }
+async function get(url) {
+    try { const r = await fetch(url); return r.ok ? r.json() : null; }
+    catch(e) { return null; }
 }
 
-function formatTime(iso) {
-    return new Date(iso).toLocaleTimeString('el-GR', { hour: '2-digit', minute: '2-digit' });
-}
-
-function formatDateTime(iso) {
-    return new Date(iso).toLocaleString('el-GR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-}
-
-function getValue(data, keys) {
-    for (const k of keys) {
-        if (data[k] !== undefined && data[k] !== null) return parseFloat(data[k]);
-    }
+function val(data, keys) {
+    for (const k of keys) if (data[k] != null) return parseFloat(data[k]);
     return null;
 }
 
-const TEMP_KEYS = ['temperature', 'temp', 'ds18b20'];
-const PRESSURE_KEYS = ['pressure', 'prs', 'bmp280', 'bmp180'];
+function fmtTime(iso) {
+    return new Date(iso).toLocaleTimeString('el-GR', {hour:'2-digit', minute:'2-digit'});
+}
 
-async function loadDashboard() {
-    const sensors = await fetchJSON(`${API}/public/sensors/`);
+function fmtDateTime(iso) {
+    return new Date(iso).toLocaleString('el-GR', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit'});
+}
+
+const K = {
+    temp: ['temperature','temp','ds18b20'],
+    prs: ['pressure','prs','bmp280','bmp180'],
+    sys: ['system_temperature','cpu_temp','system'],
+    sig: ['signal','wifi','rssi','signal_strength','wifi_signal']
+};
+
+function makeChart(canvasId, data, labels, color) {
+    const el = document.getElementById(canvasId);
+    if (!el || data.length < 2) return;
+    const ctx = el.getContext('2d');
+    const grad = ctx.createLinearGradient(0, 0, 0, 200);
+    grad.addColorStop(0, color + 'aa');
+    grad.addColorStop(1, color + '22');
+    new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: labels,
+            datasets: [{
+                data: data,
+                borderColor: color,
+                backgroundColor: grad,
+                fill: true,
+                tension: 0.3,
+                pointRadius: 0,
+                borderWidth: 1.5
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: { legend: { display: false } },
+            scales: {
+                x: { grid: { color: '#444' }, ticks: { color: '#999', font: { size: 9 }, maxTicksLimit: 8, maxRotation: 45 } },
+                y: { grid: { color: '#444' }, ticks: { color: '#999', font: { size: 10 } } }
+            }
+        }
+    });
+}
+
+async function load() {
+    const sensors = await get(`${API}/public/sensors/`);
     if (!sensors || !sensors.length) {
-        document.getElementById('content').innerHTML = '<div class="error">Δεν υπάρχουν διαθέσιμοι δημόσιοι αισθητήρες.</div>';
+        document.getElementById('app').innerHTML = '<div class="error">Δεν υπάρχουν δημόσιοι αισθητήρες.</div>';
         return;
     }
 
-    const loc = sensors[0].home_location;
-    if (loc) document.getElementById('location').textContent = '📍 ' + loc;
+    const loc = sensors[0].home_location || '';
 
-    // Find DS18B20 and BMP280 sensors by name or type
-    let tempSensor = null;
-    let pressureSensor = null;
-
+    // Identify sensors by name/type
+    let tempS = null, prsS = null, sysS = null, sigS = null;
     for (const s of sensors) {
-        const name = s.name.toLowerCase();
-        const type = (s.sensor_type || '').toLowerCase();
-        if (!tempSensor && (name.includes('ds18b20') || type.includes('ds18b20'))) tempSensor = s;
-        if (!pressureSensor && (name.includes('bmp280') || type.includes('bmp280') || name.includes('pressure'))) pressureSensor = s;
+        const n = s.name.toLowerCase(), t = (s.sensor_type||'').toLowerCase();
+        if (!tempS && (n.includes('ds18b20') || t.includes('ds18b20'))) tempS = s;
+        if (!prsS && (n.includes('bmp280') || t.includes('bmp280') || n.includes('pressure'))) prsS = s;
+        if (!sysS && (n.includes('system') || n.includes('cpu'))) sysS = s;
+        if (!sigS && (n.includes('wifi') || n.includes('signal'))) sigS = s;
     }
 
-    // Fallback: check latest data for temperature/pressure values
-    if (!tempSensor || !pressureSensor) {
-        for (const s of sensors) {
-            if (tempSensor && pressureSensor) break;
-            const latest = await fetchJSON(`${API}/public/sensors/${s.id}/readings/latest/`);
-            if (latest && latest.data) {
-                if (!tempSensor && getValue(latest.data, TEMP_KEYS) !== null) tempSensor = s;
-                if (!pressureSensor && getValue(latest.data, PRESSURE_KEYS) !== null) pressureSensor = s;
-            }
-        }
-    }
+    // Fetch latest for all found sensors
+    const found = [tempS, prsS, sysS, sigS].filter(Boolean);
+    const uniqueIds = [...new Set(found.map(s => s.id))];
+    const latestMap = {};
+    await Promise.all(uniqueIds.map(async id => {
+        latestMap[id] = await get(`${API}/public/sensors/${id}/readings/latest/`);
+    }));
 
-    // Fetch latest readings
-    const [tempLatest, pressureLatest] = await Promise.all([
-        tempSensor ? fetchJSON(`${API}/public/sensors/${tempSensor.id}/readings/latest/`) : null,
-        pressureSensor ? fetchJSON(`${API}/public/sensors/${pressureSensor.id}/readings/latest/`) : null,
-    ]);
+    const tempLatest = tempS ? latestMap[tempS.id] : null;
+    const prsLatest = prsS ? latestMap[prsS.id] : null;
 
-    const tempValue = tempLatest ? getValue(tempLatest.data, TEMP_KEYS) : null;
-    const pressureValue = pressureLatest ? getValue(pressureLatest.data, PRESSURE_KEYS) : null;
+    const tempVal = tempLatest ? val(tempLatest.data, K.temp) : null;
+    const prsVal = prsLatest ? val(prsLatest.data, K.prs) : null;
 
-    // Fetch last 12 hours of readings
-    const since = new Date(Date.now() - 12 * 3600000).toISOString();
+    // Fetch last 4h readings for all sensors
+    const since = new Date(Date.now() - 4 * 3600000).toISOString();
+    const readingsMap = {};
+    await Promise.all(uniqueIds.map(async id => {
+        const r = await get(`${API}/public/sensors/${id}/readings/?from_date=${since}&limit=1000`);
+        const arr = r ? (r.results || r) : [];
+        readingsMap[id] = arr.sort((a,b) => new Date(a.recorded_at) - new Date(b.recorded_at));
+    }));
 
-    const [tempReadings, pressureReadings] = await Promise.all([
-        tempSensor ? fetchJSON(`${API}/public/sensors/${tempSensor.id}/readings/?from_date=${since}&limit=1000`) : null,
-        pressureSensor ? fetchJSON(`${API}/public/sensors/${pressureSensor.id}/readings/?from_date=${since}&limit=1000`) : null,
-    ]);
+    const tempReadings = tempS ? readingsMap[tempS.id] || [] : [];
+    const prsReadings = prsS ? readingsMap[prsS.id] || [] : [];
+    const sysReadings = sysS ? readingsMap[sysS.id] || [] : [];
+    const sigReadings = sigS ? readingsMap[sigS.id] || [] : [];
 
-    const tempData = (tempReadings ? (tempReadings.results || tempReadings) : [])
-        .sort((a, b) => new Date(a.recorded_at) - new Date(b.recorded_at));
-    const pressureData = (pressureReadings ? (pressureReadings.results || pressureReadings) : [])
-        .sort((a, b) => new Date(a.recorded_at) - new Date(b.recorded_at));
+    // Compute min/max
+    const tempVals = tempReadings.map(r => val(r.data, K.temp)).filter(v => v !== null);
+    const prsVals = prsReadings.map(r => val(r.data, K.prs)).filter(v => v !== null);
+    const tempMin = tempVals.length ? Math.min(...tempVals).toFixed(2) : '--';
+    const tempMax = tempVals.length ? Math.max(...tempVals).toFixed(2) : '--';
+    const prsMin = prsVals.length ? Math.min(...prsVals).toFixed(2) : '--';
+    const prsMax = prsVals.length ? Math.max(...prsVals).toFixed(2) : '--';
+
+    const lastDate = tempLatest ? fmtDateTime(tempLatest.recorded_at) : '--';
 
     // Build HTML
-    let html = '<div class="cards">';
-    html += `<div class="card temp">
-        <div class="label">Θερμοκρασία (DS18B20)</div>
-        <div class="value">${tempValue !== null ? tempValue.toFixed(1) : '--'}<span class="unit"> °C</span></div>
-        <div class="meta">${tempLatest ? 'Ενημέρωση: ' + formatDateTime(tempLatest.recorded_at) : 'Χωρίς δεδομένα'}</div>
+    let html = '';
+
+    // Title
+    html += `<div class="title-bar"><h1>Μετεωρολογικός σταθμός${loc ? '<br>' + loc : ''}</h1></div>`;
+
+    // Current values circles
+    html += `<div class="current">
+        <div class="current-item">
+            <div class="lbl">Θερμοκρασία</div>
+            <div class="circle circle-temp">${tempVal !== null ? tempVal.toFixed(1) + ' °C' : '--'}</div>
+        </div>
+        <div class="current-item">
+            <div class="lbl">Βαρόμετρο</div>
+            <div class="circle circle-prs">${prsVal !== null ? prsVal.toFixed(2) + ' hPa' : '--'}</div>
+        </div>
     </div>`;
-    html += `<div class="card pressure">
-        <div class="label">Ατμοσφαιρική Πίεση (BMP280)</div>
-        <div class="value">${pressureValue !== null ? pressureValue.toFixed(1) : '--'}<span class="unit"> hPa</span></div>
-        <div class="meta">${pressureLatest ? 'Ενημέρωση: ' + formatDateTime(pressureLatest.recorded_at) : 'Χωρίς δεδομένα'}</div>
+
+    // Min/Max table
+    html += `<div class="minmax-section">
+        <div class="minmax-header">Μέγιστες/Ελάχιστες μετρήσεις ημέρας</div>
+        <table class="minmax-table">
+            <tr><td>Θερμοκρασία</td><td>↓ ${tempMin} °C / ↑ ${tempMax} °C</td></tr>
+            <tr><td>Βαρομετρική πίεση</td><td>↓ ${prsMin} hPa / ↑ ${prsMax} hPa</td></tr>
+        </table>
     </div>`;
+
+    // Charts info
+    html += `<div class="charts-info">Στα διαγράμματα εμφανίζονται μετρήσεις για τις τελευταίες 4 ώρες.</div>`;
+
+    // Charts 2x2
+    html += '<div class="charts-grid">';
+    if (tempReadings.length > 1) {
+        html += `<div class="chart-card">
+            <div class="ch-legend"><span class="swatch" style="background:#e06060"></span> Θερμοκρασία/Temperature (DS18B20 ±0.85%)</div>
+            <canvas id="chTemp"></canvas></div>`;
+    }
+    if (prsReadings.length > 1) {
+        html += `<div class="chart-card">
+            <div class="ch-legend"><span class="swatch" style="background:#b060e0"></span> Βαρόμετρο / Pressure (BMP280 ±1 hPa)</div>
+            <canvas id="chPrs"></canvas></div>`;
+    }
+    if (sysReadings.length > 1) {
+        html += `<div class="chart-card">
+            <div class="ch-legend"><span class="swatch" style="background:#60b060"></span> Θερμοκρασία συστήματος / System temperature</div>
+            <canvas id="chSys"></canvas></div>`;
+    }
+    if (sigReadings.length > 1) {
+        html += `<div class="chart-card">
+            <div class="ch-legend"><span class="swatch" style="background:#50c8c8"></span> Ένταση WiFi / WiFi signal</div>
+            <canvas id="chSig"></canvas></div>`;
+    }
     html += '</div>';
 
-    html += '<div class="chart-section"><h2>📊 Τελευταίες 12 ώρες</h2>';
-    if (tempData.length > 1) {
-        html += '<div class="chart-box"><canvas id="tempChart"></canvas></div>';
-    }
-    if (pressureData.length > 1) {
-        html += '<div class="chart-box"><canvas id="pressureChart"></canvas></div>';
-    }
-    html += '</div>';
+    // Info table
+    html += `<div class="info-section">
+        <div class="info-header">Πληροφορίες</div>
+        <table class="info-table">
+            <tr><td>Πόλη</td><td>${loc || '--'}</td></tr>
+            <tr><td>Ανανέωση</td><td>Κάθε 5 λεπτά</td></tr>
+            <tr><td>Τελευταία μέτρηση</td><td>${lastDate}</td></tr>
+            <tr><td>Σύνολο αισθητήρων</td><td>${sensors.length}</td></tr>
+            <tr><td>Ανοιχτά δεδομένα</td><td><a href="/api/docs/">Πληροφορίες API</a></td></tr>
+            <tr><td>Κώδικας στο Github</td><td><a href="https://github.com/tsaklidis/LogingAPIEnhanced">LogingAPI Project</a></td></tr>
+            <tr><td>Developed by</td><td><a href="https://github.com/tsaklidis">Stefanos I. Tsaklidis</a></td></tr>
+        </table>
+    </div>`;
 
-    document.getElementById('content').innerHTML = html;
+    document.getElementById('app').innerHTML = html;
 
-    // Render temperature chart
-    if (tempData.length > 1) {
-        const ctx = document.getElementById('tempChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: tempData.map(r => formatTime(r.recorded_at)),
-                datasets: [{
-                    label: 'Θερμοκρασία (°C)',
-                    data: tempData.map(r => getValue(r.data, TEMP_KEYS)),
-                    borderColor: '#f97316',
-                    backgroundColor: 'rgba(249, 115, 22, 0.1)',
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 0,
-                    borderWidth: 2,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', maxTicksLimit: 8, maxRotation: 0 } },
-                    y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b' } }
-                }
-            }
-        });
+    // Render charts
+    if (tempReadings.length > 1) {
+        makeChart('chTemp', tempReadings.map(r => val(r.data, K.temp)), tempReadings.map(r => fmtTime(r.recorded_at)), '#e06060');
     }
-
-    // Render pressure chart
-    if (pressureData.length > 1) {
-        const ctx = document.getElementById('pressureChart').getContext('2d');
-        new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: pressureData.map(r => formatTime(r.recorded_at)),
-                datasets: [{
-                    label: 'Πίεση (hPa)',
-                    data: pressureData.map(r => getValue(r.data, PRESSURE_KEYS)),
-                    borderColor: '#38bdf8',
-                    backgroundColor: 'rgba(56, 189, 248, 0.1)',
-                    fill: true,
-                    tension: 0.3,
-                    pointRadius: 0,
-                    borderWidth: 2,
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { display: false } },
-                scales: {
-                    x: { grid: { color: '#1e293b' }, ticks: { color: '#64748b', maxTicksLimit: 8, maxRotation: 0 } },
-                    y: { grid: { color: '#1e293b' }, ticks: { color: '#64748b' } }
-                }
-            }
-        });
+    if (prsReadings.length > 1) {
+        makeChart('chPrs', prsReadings.map(r => val(r.data, K.prs)), prsReadings.map(r => fmtTime(r.recorded_at)), '#b060e0');
+    }
+    if (sysReadings.length > 1) {
+        makeChart('chSys', sysReadings.map(r => val(r.data, K.sys) || val(r.data, K.temp)), sysReadings.map(r => fmtTime(r.recorded_at)), '#60b060');
+    }
+    if (sigReadings.length > 1) {
+        makeChart('chSig', sigReadings.map(r => val(r.data, K.sig)), sigReadings.map(r => fmtTime(r.recorded_at)), '#50c8c8');
     }
 }
 
-loadDashboard();
+load();
 setInterval(() => location.reload(), 5 * 60 * 1000);
 </script>
 </body>
