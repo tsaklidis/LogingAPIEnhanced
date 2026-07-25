@@ -3,367 +3,410 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1">
-    <title>Μετρήσεις Αισθητήρων - Home Sensor Platform</title>
+    <title>Sensor Logs</title>
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
     <style>
         :root {
-            --bg: #0b1120;
-            --bg-card: #151d2e;
-            --bg-metric: #1a2438;
+            --bg: #0c1222;
+            --bg2: #111a2e;
+            --bg-card: #15203a;
+            --border: #1c2d4a;
             --accent: #38bdf8;
-            --green: #34d399;
-            --orange: #fb923c;
-            --rose: #fb7185;
+            --green: #22c55e;
+            --orange: #f97316;
+            --red: #ef4444;
             --purple: #a78bfa;
-            --yellow: #fbbf24;
-            --text: #f1f5f9;
+            --yellow: #eab308;
+            --rose: #fb7185;
+            --text: #e2e8f0;
             --text2: #94a3b8;
             --text3: #64748b;
-            --border: #1e2d45;
-            --radius: 14px;
+            --radius: 12px;
         }
-        * { box-sizing: border-box; margin: 0; padding: 0; }
-        body { font-family: 'Inter', sans-serif; background: var(--bg); color: var(--text); }
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh}
 
-        /* Header */
-        .hero {
-            padding: 2.5rem 1rem 1.5rem;
-            text-align: center;
-            background: linear-gradient(180deg, #131b2e 0%, var(--bg) 100%);
-        }
-        .hero h1 { font-size: 1.6rem; font-weight: 700; letter-spacing: -0.03em; }
-        .hero .loc { color: var(--text3); font-size: 0.85rem; margin-top: 0.3rem; }
+        /* Top bar */
+        .topbar{display:flex;align-items:center;justify-content:space-between;padding:1rem 1.5rem;background:var(--bg2);border-bottom:1px solid var(--border)}
+        .topbar-left{display:flex;align-items:center;gap:.75rem}
+        .logo-icon{color:var(--accent);font-size:1.3rem}
+        .logo-text{font-size:1.1rem;font-weight:700;letter-spacing:-.02em}
+        .logo-sub{font-size:.65rem;color:var(--text3);margin-top:1px}
+        .topbar-center{text-align:center}
+        .topbar-loc{font-size:.9rem;font-weight:500}
+        .topbar-time{font-size:.65rem;color:var(--text3);margin-top:2px;display:flex;align-items:center;justify-content:center;gap:.35rem}
+        .topbar-time .dot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+        .topbar-right{display:flex;align-items:center;gap:.75rem}
+        .lang-btn{background:var(--bg);border:1px solid var(--border);color:var(--text2);font-size:.7rem;padding:.3rem .6rem;border-radius:6px;cursor:pointer;font-family:inherit}
+        .lang-btn:hover{border-color:var(--accent);color:var(--text)}
+        .badge-online{font-size:.65rem;font-weight:600;color:var(--green);border:1px solid var(--green);border-radius:20px;padding:.25rem .65rem;display:flex;align-items:center;gap:.35rem}
+        .badge-online .bdot{width:6px;height:6px;border-radius:50%;background:var(--green);animation:pulse 2s infinite}
+        @keyframes pulse{0%,100%{opacity:1}50%{opacity:.3}}
 
-        /* Top summary strip */
-        .summary-strip {
-            display: flex;
-            gap: 0.75rem;
-            overflow-x: auto;
-            padding: 0 1rem 1rem;
-            max-width: 1200px;
-            margin: 0 auto;
-            scrollbar-width: none;
-        }
-        .summary-strip::-webkit-scrollbar { display: none; }
-        .summary-item {
-            flex: 0 0 auto;
-            min-width: 130px;
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: 12px;
-            padding: 0.9rem 1rem;
-            text-align: center;
-        }
-        .summary-item .label { font-size: 0.65rem; text-transform: uppercase; letter-spacing: 0.06em; color: var(--text3); margin-bottom: 0.3rem; }
-        .summary-item .val { font-size: 1.5rem; font-weight: 700; }
-        .summary-item .sub { font-size: 0.6rem; color: var(--text3); margin-top: 0.2rem; }
+        /* Layout */
+        .main{max-width:1300px;margin:0 auto;padding:1.25rem}
 
-        /* Main layout */
-        .dash { max-width: 1200px; margin: 0 auto; padding: 0 1rem; }
+        /* Summary cards */
+        .summary-row{display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:.75rem;margin-bottom:1.5rem}
+        .s-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem 1.25rem;display:flex;align-items:center;gap:1rem}
+        .s-icon{width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;font-size:1.4rem;flex-shrink:0}
+        .s-body{flex:1;min-width:0}
+        .s-label{font-size:.6rem;color:var(--text3);letter-spacing:.04em;margin-bottom:.2rem}
+        .s-val{font-size:1.6rem;font-weight:700;line-height:1.1}
+        .s-val .s-unit{font-size:.85rem;font-weight:400;color:var(--text2)}
+        .s-sub{font-size:.6rem;color:var(--text3);margin-top:.15rem}
 
-        /* Section titles */
-        .section-title {
-            font-size: 0.75rem;
-            text-transform: uppercase;
-            letter-spacing: 0.08em;
-            color: var(--text3);
-            margin: 1.5rem 0 0.75rem;
-            padding-left: 0.25rem;
-        }
+        .s-temp .s-icon{background:rgba(239,68,68,.12);color:var(--red)}
+        .s-temp .s-val{color:var(--red)}
+        .s-prs .s-icon{background:rgba(167,139,250,.12);color:var(--purple)}
+        .s-prs .s-val{color:var(--purple)}
+        .s-count .s-icon{background:rgba(56,189,248,.12);color:var(--accent)}
+        .s-count .s-val{color:var(--accent)}
+        .s-sig .s-icon{background:rgba(34,197,94,.12);color:var(--green)}
+        .s-sig .s-val{color:var(--green)}
+
+        /* Section labels */
+        .sec-label{font-size:.75rem;color:var(--text3);margin-bottom:.75rem;padding-left:2px;font-weight:500}
 
         /* Metrics grid */
-        .metrics-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(160px, 1fr));
-            gap: 0.75rem;
-        }
-        .m-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1rem;
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.15s, border-color 0.2s;
-        }
-        .m-card:hover { transform: translateY(-2px); border-color: var(--accent); }
-        .m-card .m-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.5rem; }
-        .m-card .m-icon { width: 28px; height: 28px; border-radius: 8px; display: flex; align-items: center; justify-content: center; font-size: 0.85rem; }
-        .m-card .m-sensor { font-size: 0.65rem; color: var(--text3); max-width: 70%; text-align: right; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-        .m-card .m-val { font-size: 1.6rem; font-weight: 700; line-height: 1.1; }
-        .m-card .m-unit { font-size: 0.8rem; font-weight: 400; color: var(--text2); }
-        .m-card .m-label { font-size: 0.7rem; color: var(--text3); margin-top: 0.15rem; }
-        .m-card .m-range { font-size: 0.6rem; color: var(--text3); margin-top: 0.4rem; }
-        .m-card .m-bar { position: absolute; top: 0; left: 0; right: 0; height: 2px; }
+        .metrics-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(200px,1fr));gap:.75rem;margin-bottom:1.5rem}
+        .m-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem 1.1rem;display:flex;align-items:center;gap:.85rem;transition:border-color .2s}
+        .m-card:hover{border-color:var(--accent)}
+        .m-icon{width:36px;height:36px;border-radius:10px;display:flex;align-items:center;justify-content:center;font-size:1rem;flex-shrink:0}
+        .m-body{flex:1;min-width:0}
+        .m-name{font-size:.7rem;color:var(--text2);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+        .m-val{font-size:1.4rem;font-weight:700;line-height:1.15;margin-top:.1rem}
+        .m-val .m-unit{font-size:.75rem;font-weight:400;color:var(--text2)}
+        .m-sub{font-size:.55rem;color:var(--text3);margin-top:.15rem}
+        .m-range{font-size:.55rem;color:var(--text3);margin-top:.15rem}
 
-        /* Color accents */
-        .c-temp .m-bar { background: linear-gradient(90deg, #ef4444, var(--orange)); }
-        .c-temp .m-val { color: var(--orange); }
-        .c-temp .m-icon { background: rgba(249,115,22,0.15); }
-        .c-hum .m-bar { background: linear-gradient(90deg, #06b6d4, #3b82f6); }
-        .c-hum .m-val { color: var(--accent); }
-        .c-hum .m-icon { background: rgba(56,189,248,0.15); }
-        .c-prs .m-bar { background: linear-gradient(90deg, #8b5cf6, var(--purple)); }
-        .c-prs .m-val { color: var(--purple); }
-        .c-prs .m-icon { background: rgba(167,139,250,0.15); }
-        .c-bat .m-bar { background: linear-gradient(90deg, #22c55e, #84cc16); }
-        .c-bat .m-val { color: var(--green); }
-        .c-bat .m-icon { background: rgba(52,211,153,0.15); }
-        .c-sig .m-bar { background: linear-gradient(90deg, var(--yellow), var(--orange)); }
-        .c-sig .m-val { color: var(--yellow); }
-        .c-sig .m-icon { background: rgba(251,191,36,0.15); }
-        .c-sys .m-bar { background: linear-gradient(90deg, var(--rose), #e11d48); }
-        .c-sys .m-val { color: var(--rose); }
-        .c-sys .m-icon { background: rgba(251,113,133,0.15); }
+        .c-temp .m-icon{background:rgba(249,115,22,.12);color:var(--orange)}
+        .c-temp .m-val{color:var(--orange)}
+        .c-hum .m-icon{background:rgba(56,189,248,.12);color:var(--accent)}
+        .c-hum .m-val{color:var(--accent)}
+        .c-prs .m-icon{background:rgba(167,139,250,.12);color:var(--purple)}
+        .c-prs .m-val{color:var(--purple)}
+        .c-bat .m-icon{background:rgba(34,197,94,.12);color:var(--green)}
+        .c-bat .m-val{color:var(--green)}
+        .c-sig .m-icon{background:rgba(234,179,8,.12);color:var(--yellow)}
+        .c-sig .m-val{color:var(--yellow)}
+        .c-sys .m-icon{background:rgba(251,113,133,.12);color:var(--rose)}
+        .c-sys .m-val{color:var(--rose)}
 
-        /* Charts section */
-        .charts-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(min(100%, 500px), 1fr));
-            gap: 0.75rem;
-        }
-        .chart-card {
-            background: var(--bg-card);
-            border: 1px solid var(--border);
-            border-radius: var(--radius);
-            padding: 1.25rem;
-        }
-        .chart-card .ch-title { font-size: 0.8rem; font-weight: 500; color: var(--text2); margin-bottom: 0.75rem; }
-        .chart-wrap { position: relative; height: 200px; }
-
-        /* Status bar */
-        .status-bar {
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 0.5rem;
-            margin: 1.5rem 0 0.5rem;
-            font-size: 0.7rem;
-            color: var(--text3);
-        }
-        .status-dot { width: 6px; height: 6px; border-radius: 50%; background: var(--green); animation: pulse 2s infinite; }
-        @keyframes pulse { 0%,100%{opacity:1} 50%{opacity:0.3} }
+        /* Charts */
+        .charts-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(min(100%,480px),1fr));gap:.75rem;margin-bottom:1.5rem}
+        .ch-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.25rem}
+        .ch-title{font-size:.8rem;font-weight:500;color:var(--text2);margin-bottom:.85rem;display:flex;align-items:center;gap:.4rem}
+        .ch-wrap{position:relative;height:220px}
 
         /* Footer */
-        .footer { text-align: center; padding: 2rem 1rem; color: var(--text3); font-size: 0.75rem; border-top: 1px solid var(--border); margin-top: 2rem; }
-        .footer a { color: var(--accent); text-decoration: none; }
+        .footer{text-align:center;padding:1.5rem 1rem;color:var(--text3);font-size:.7rem;border-top:1px solid var(--border);margin-top:1rem}
+        .footer a{color:var(--accent);text-decoration:none}
 
         /* States */
-        .empty-state, .loading-state { text-align: center; padding: 5rem 2rem; }
-        .empty-state .icon { font-size: 3rem; opacity: 0.5; }
-        .empty-state h2 { font-size: 1.2rem; color: var(--text2); margin-top: 0.5rem; }
-        .empty-state p { color: var(--text3); font-size: 0.85rem; }
-        .spinner { width: 36px; height: 36px; border: 3px solid var(--border); border-top-color: var(--accent); border-radius: 50%; animation: spin .7s linear infinite; margin: 0 auto 1rem; }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .empty-state{text-align:center;padding:5rem 2rem}
+        .empty-state h2{font-size:1.1rem;color:var(--text2)}
+        .empty-state p{color:var(--text3);font-size:.85rem;margin-top:.5rem}
+        .loading-state{text-align:center;padding:5rem 2rem}
+        .spinner{width:32px;height:32px;border:3px solid var(--border);border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 1rem}
+        @keyframes spin{to{transform:rotate(360deg)}}
 
-        @media (max-width: 600px) {
-            .hero h1 { font-size: 1.3rem; }
-            .metrics-grid { grid-template-columns: repeat(2, 1fr); }
-            .m-card .m-val { font-size: 1.3rem; }
-            .chart-wrap { height: 160px; }
+        @media(max-width:700px){
+            .topbar{flex-wrap:wrap;gap:.5rem;padding:1rem}
+            .topbar-center{order:3;width:100%;margin-top:.25rem}
+            .summary-row{grid-template-columns:repeat(2,1fr)}
+            .metrics-grid{grid-template-columns:repeat(2,1fr)}
+            .m-card{padding:.75rem}
+            .m-val{font-size:1.15rem}
+            .ch-wrap{height:170px}
         }
     </style>
 </head>
 <body>
 
-<div class="hero">
-    <h1>🌡️ Μετρήσεις Αισθητήρων</h1>
-    <p class="loc" id="location"></p>
+<div class="topbar">
+    <div class="topbar-left">
+        <span class="logo-icon">〰️</span>
+        <div>
+            <div class="logo-text" data-i18n="title">Sensor Logs</div>
+            <div class="logo-sub" data-i18n="subtitle">Realtime sensor monitoring</div>
+        </div>
+    </div>
+    <div class="topbar-center">
+        <div class="topbar-loc" id="location"></div>
+        <div class="topbar-time"><span class="dot"></span><span id="last-update"></span></div>
+    </div>
+    <div class="topbar-right">
+        <button class="lang-btn" id="lang-toggle" onclick="toggleLang()">GR</button>
+        <div class="badge-online"><span class="bdot"></span> online</div>
+    </div>
 </div>
 
-<div id="dashboard">
-    <div class="loading-state"><div class="spinner"></div><p style="color:var(--text3)">Φόρτωση...</p></div>
+<div class="main" id="dashboard">
+    <div class="loading-state"><div class="spinner"></div><p style="color:var(--text3)" data-i18n="loading">Loading...</p></div>
 </div>
 
 <div class="footer">
     <strong>Home Sensor Platform</strong> · <a href="/api/docs/">API</a> · <a href="https://github.com/tsaklidis/LogingAPIEnhanced">GitHub</a>
-    <br><span style="margin-top:.25rem;display:inline-block">Ανανέωση κάθε 5 λεπτά</span>
 </div>
 
 <script>
-const API = '/api/v1';
-const KEYS = {
-    temp: ['temperature','temp','ds18b20'],
-    hum:  ['humidity','hum','dht22_h'],
-    prs:  ['pressure','prs','bmp280','bmp180'],
-    bat:  ['battery_percentage','battery','bat','battery_lvl'],
-    sig:  ['signal','wifi','rssi','signal_strength','wifi_signal'],
-    batv: ['battery_voltage','batt_voltage','voltage'],
-    sys:  ['system_temperature','cpu_temp','system'],
+const API='/api/v1';
+
+// --- i18n ---
+let lang = localStorage.getItem('lang') || 'en';
+
+const I18N = {
+    en: {
+        title: 'Sensor Logs',
+        subtitle: 'Realtime sensor monitoring',
+        loading: 'Loading...',
+        avgTemp: 'Avg. temperature',
+        pressure: 'Pressure',
+        sensors: 'Sensors',
+        active: 'active',
+        wifiSignal: 'Wifi signal',
+        good: 'Good', poor: 'Poor', fair: 'Fair',
+        weather: 'Weather sensors',
+        system: 'System & network',
+        history: 'History (4 hours)',
+        temperature: 'Temperature',
+        humidity: 'Humidity',
+        pressureLabel: 'Pressure',
+        signal: 'Signal',
+        battery: 'Battery',
+        voltage: 'Voltage',
+        systemTemp: 'System temp.',
+        lastUpdate: 'Last update',
+        noSensors: 'No public sensors',
+        noSensorsDesc: 'No sensors found in public spaces.',
+        tempChart: 'Temperature — 4 hours',
+        humChart: 'Humidity — 4 hours',
+        prsChart: 'Barometric pressure — 4 hours',
+        sysChart: 'System temperature — 4 hours',
+        nSensors: 'sensors',
+    },
+    el: {
+        title: 'Sensor Logs',
+        subtitle: 'Παρακολούθηση αισθητήρων',
+        loading: 'Φόρτωση...',
+        avgTemp: 'Μέση θερμοκρασία',
+        pressure: 'Πίεση',
+        sensors: 'Αισθητήρες',
+        active: 'ενεργοί',
+        wifiSignal: 'Σήμα wifi',
+        good: 'Καλό', poor: 'Χαμηλό', fair: 'Μέτριο',
+        weather: 'Αισθητήρες καιρού',
+        system: 'Σύστημα & δίκτυο',
+        history: 'Ιστορικό (4 ώρες)',
+        temperature: 'Θερμοκρασία',
+        humidity: 'Υγρασία',
+        pressureLabel: 'Πίεση',
+        signal: 'Σήμα',
+        battery: 'Μπαταρία',
+        voltage: 'Τάση',
+        systemTemp: 'Θερμ. συστήματος',
+        lastUpdate: 'Τελευταία ενημέρωση',
+        noSensors: 'Δεν υπάρχουν αισθητήρες',
+        noSensorsDesc: 'Δεν βρέθηκαν αισθητήρες σε δημόσιους χώρους.',
+        tempChart: 'Θερμοκρασία — 4 ώρες',
+        humChart: 'Υγρασία — 4 ώρες',
+        prsChart: 'Βαρομετρική πίεση — 4 ώρες',
+        sysChart: 'Θερμοκρασία συστήματος — 4 ώρες',
+        nSensors: 'αισθ.',
+    }
 };
-const CHART_COLORS = {
-    temp: {line:'#f97316', bg:['rgba(249,115,22,.25)','rgba(249,115,22,0)']},
-    hum:  {line:'#38bdf8', bg:['rgba(56,189,248,.25)','rgba(56,189,248,0)']},
-    prs:  {line:'#a78bfa', bg:['rgba(167,139,250,.25)','rgba(167,139,250,0)']},
-    sys:  {line:'#fb7185', bg:['rgba(251,113,133,.25)','rgba(251,113,133,0)']},
+
+function t(key){ return I18N[lang][key] || key; }
+
+function toggleLang(){
+    lang = lang==='en'?'el':'en';
+    localStorage.setItem('lang', lang);
+    location.reload();
+}
+
+function applyLang(){
+    document.getElementById('lang-toggle').textContent = lang==='en'?'GR':'EN';
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+        const k=el.getAttribute('data-i18n');
+        if(I18N[lang][k]) el.textContent=I18N[lang][k];
+    });
+}
+
+// --- Data helpers ---
+const KEYS={
+    temp:['temperature','temp','ds18b20'],
+    hum:['humidity','hum','dht22_h'],
+    prs:['pressure','prs','bmp280','bmp180'],
+    bat:['battery_percentage','battery','bat','battery_lvl'],
+    sig:['signal','wifi','rssi','signal_strength','wifi_signal'],
+    batv:['battery_voltage','batt_voltage','voltage'],
+    sys:['system_temperature','cpu_temp','system'],
+};
+const CHART_C={
+    temp:{line:'#f97316',bg:['rgba(249,115,22,.2)','rgba(249,115,22,0)']},
+    hum:{line:'#38bdf8',bg:['rgba(56,189,248,.2)','rgba(56,189,248,0)']},
+    prs:{line:'#a78bfa',bg:['rgba(167,139,250,.2)','rgba(167,139,250,0)']},
+    sys:{line:'#fb7185',bg:['rgba(251,113,133,.2)','rgba(251,113,133,0)']},
 };
 
 async function fetchJSON(u){try{const r=await fetch(u);if(!r.ok)return null;return r.json()}catch{return null}}
 function gv(d,keys){for(const k of keys){if(d[k]!==undefined&&d[k]!==null)return parseFloat(d[k])}return null}
-function fmt(iso){return new Date(iso).toLocaleTimeString('el-GR',{hour:'2-digit',minute:'2-digit'})}
-function fmtDT(iso){return new Date(iso).toLocaleString('el-GR',{dateStyle:'short',timeStyle:'short'})}
+function fmt(iso){return new Date(iso).toLocaleTimeString(lang==='el'?'el-GR':'en-GB',{hour:'2-digit',minute:'2-digit'})}
+function fmtDT(iso){return new Date(iso).toLocaleString(lang==='el'?'el-GR':'en-GB',{dateStyle:'short',timeStyle:'short'})}
+function sigLabel(v){if(v===null)return '';if(v>-50)return t('good');if(v>-70)return t('fair');return t('poor')}
 
-function grad(ctx,c){const g=ctx.createLinearGradient(0,0,0,200);g.addColorStop(0,c.bg[0]);g.addColorStop(1,c.bg[1]);return g}
+function grad(ctx,c){const g=ctx.createLinearGradient(0,0,0,220);g.addColorStop(0,c.bg[0]);g.addColorStop(1,c.bg[1]);return g}
 
-function makeChart(canvas, datasets){
-    if(!canvas) return;
+function makeChart(canvas,datasets){
+    if(!canvas)return;
     const ctx=canvas.getContext('2d');
+    // Give each dataset a slightly different shade if multiple
+    const shades=['','cc','99'];
     new Chart(ctx,{
         type:'line',
-        data:{labels:datasets[0].labels, datasets:datasets.map(ds=>({
-            label:ds.label, data:ds.data,
-            borderColor:ds.color.line, backgroundColor:grad(ctx,ds.color),
-            fill:true, tension:.4, pointRadius:0, pointHoverRadius:4,
-            pointHoverBackgroundColor:ds.color.line, pointHoverBorderColor:'#fff',
-            pointHoverBorderWidth:2, borderWidth:2,
+        data:{labels:datasets[0].labels,datasets:datasets.map((ds,i)=>({
+            label:ds.label,data:ds.data,
+            borderColor:ds.color.line+(shades[i]||''),
+            backgroundColor:grad(ctx,ds.color),
+            fill:i===0,tension:.4,pointRadius:0,pointHoverRadius:4,
+            pointHoverBackgroundColor:ds.color.line,pointHoverBorderColor:'#fff',
+            pointHoverBorderWidth:2,borderWidth:2,
         }))},
         options:{
-            responsive:true, maintainAspectRatio:false,
+            responsive:true,maintainAspectRatio:false,
             interaction:{mode:'index',intersect:false},
             plugins:{
-                legend:{display:datasets.length>1, position:'top', labels:{color:'#94a3b8',boxWidth:10,font:{size:10},padding:8}},
+                legend:{display:datasets.length>1,position:'top',labels:{color:'#94a3b8',boxWidth:8,boxHeight:8,font:{size:10},padding:10,usePointStyle:true}},
                 tooltip:{backgroundColor:'#1e293b',titleColor:'#f1f5f9',bodyColor:'#94a3b8',borderColor:'#334155',borderWidth:1,cornerRadius:8,padding:10,displayColors:true,boxWidth:8}
             },
             scales:{
-                x:{grid:{color:'rgba(30,45,69,.6)',drawBorder:false},ticks:{color:'#475569',font:{size:9},maxTicksLimit:6,maxRotation:0}},
-                y:{grid:{color:'rgba(30,45,69,.6)',drawBorder:false},ticks:{color:'#475569',font:{size:9},padding:6}}
+                x:{grid:{color:'rgba(30,45,69,.5)',drawBorder:false},ticks:{color:'#475569',font:{size:9},maxTicksLimit:6,maxRotation:0}},
+                y:{grid:{color:'rgba(30,45,69,.5)',drawBorder:false},ticks:{color:'#475569',font:{size:9},padding:8}}
             }
         }
     });
 }
 
-function metricCard(type, icon, label, value, unit, sensorName, min, max) {
-    if(value===null) return '';
-    const range = (min!==null&&max!==null&&Math.abs(max-min)>0.05)
-        ? `<div class="m-range">↓ ${min.toFixed(1)} / ↑ ${max.toFixed(1)}</div>` : '';
-    return `<div class="m-card c-${type}">
-        <div class="m-bar"></div>
-        <div class="m-top"><div class="m-icon">${icon}</div><div class="m-sensor">${sensorName}</div></div>
-        <div class="m-val">${typeof value==='number'?value.toFixed(1):value}<span class="m-unit">${unit}</span></div>
-        <div class="m-label">${label}</div>
-        ${range}
-    </div>`;
+function mCard(type,icon,label,value,unit,name,min,max){
+    if(value===null)return '';
+    const range=(min!==null&&max!==null&&Math.abs(max-min)>0.05)?`<div class="m-range">↓ ${min.toFixed(1)} / ↑ ${max.toFixed(1)}</div>`:'';
+    return `<div class="m-card c-${type}"><div class="m-icon">${icon}</div><div class="m-body">
+        <div class="m-name">${name}</div>
+        <div class="m-val">${typeof value==='number'?value.toFixed(1):value}<span class="m-unit"> ${unit}</span></div>
+        <div class="m-sub">${label}</div>${range}
+    </div></div>`;
 }
 
+// --- Main ---
 async function loadDashboard(){
-    const sensors = await fetchJSON(`${API}/public/sensors/`);
+    const sensors=await fetchJSON(`${API}/public/sensors/`);
     if(!sensors||!sensors.length){
-        document.getElementById('dashboard').innerHTML=`<div class="dash"><div class="empty-state"><div class="icon">📡</div><h2>Δεν υπάρχουν δημόσιοι αισθητήρες</h2><p>Δεν βρέθηκαν αισθητήρες σε δημόσιους χώρους.</p></div></div>`;
+        document.getElementById('dashboard').innerHTML=`<div class="empty-state"><h2>${t('noSensors')}</h2><p>${t('noSensorsDesc')}</p></div>`;
         return;
     }
 
     const loc=sensors[0].home_location;
     if(loc) document.getElementById('location').textContent='📍 '+loc;
 
-    // Fetch all data in parallel
-    const allData = await Promise.all(sensors.map(async s=>{
+    const allData=await Promise.all(sensors.map(async s=>{
         const since=new Date(Date.now()-4*3600000).toISOString();
-        const [latest, readingsRes] = await Promise.all([
+        const[latest,res]=await Promise.all([
             fetchJSON(`${API}/public/sensors/${s.id}/readings/latest/`),
             fetchJSON(`${API}/public/sensors/${s.id}/readings/?recorded_at_after=${since}&page_size=500`)
         ]);
-        const readings=(readingsRes?(readingsRes.results||readingsRes):[]).sort((a,b)=>new Date(a.recorded_at)-new Date(b.recorded_at));
-        return {...s, latest, readings};
+        const readings=(res?(res.results||res):[]).sort((a,b)=>new Date(a.recorded_at)-new Date(b.recorded_at));
+        return{...s,latest,readings};
     }));
 
-    // Collect all metrics across sensors
-    let metrics=[], chartDatasets={temp:[],hum:[],prs:[],sys:[]};
+    // Classify sensors
+    let weatherMetrics=[],sysMetrics=[];
+    let chartDS={temp:[],hum:[],prs:[],sys:[]};
     let lastUpdate=null;
 
     for(const s of allData){
-        const d = s.latest?s.latest.data:{};
-        const r = s.readings;
-        const name = s.name;
+        const d=s.latest?s.latest.data:{};
+        const r=s.readings;
+        const nm=s.name;
 
-        // Extract values
-        const temp=gv(d,KEYS.temp), hum=gv(d,KEYS.hum), prs=gv(d,KEYS.prs);
-        const bat=gv(d,KEYS.bat), sig=gv(d,KEYS.sig), batv=gv(d,KEYS.batv), sys=gv(d,KEYS.sys);
+        const temp=gv(d,KEYS.temp),hum=gv(d,KEYS.hum),prs=gv(d,KEYS.prs);
+        const bat=gv(d,KEYS.bat),sig=gv(d,KEYS.sig),batv=gv(d,KEYS.batv),sys=gv(d,KEYS.sys);
 
-        // Min/max from readings
         const tv=r.map(x=>gv(x.data,KEYS.temp)).filter(v=>v!==null);
         const hv=r.map(x=>gv(x.data,KEYS.hum)).filter(v=>v!==null);
         const pv=r.map(x=>gv(x.data,KEYS.prs)).filter(v=>v!==null);
         const sv=r.map(x=>gv(x.data,KEYS.sys)).filter(v=>v!==null);
 
-        if(temp!==null) metrics.push(metricCard('temp','🌡️','Θερμοκρασία',temp,'°C',name,tv.length?Math.min(...tv):null,tv.length?Math.max(...tv):null));
-        if(hum!==null) metrics.push(metricCard('hum','💧','Υγρασία',hum,'%',name,hv.length?Math.min(...hv):null,hv.length?Math.max(...hv):null));
-        if(prs!==null) metrics.push(metricCard('prs','🔵','Πίεση',prs,' hPa',name,pv.length?Math.min(...pv):null,pv.length?Math.max(...pv):null));
-        if(bat!==null) metrics.push(metricCard('bat','🔋','Μπαταρία',bat,'%',name,null,null));
-        if(batv!==null) metrics.push(metricCard('bat','⚡','Τάση',batv,'V',name,null,null));
-        if(sig!==null) metrics.push(metricCard('sig','📶','Σήμα',sig,'dBm',name,null,null));
-        if(sys!==null) metrics.push(metricCard('sys','🖥️','Σύστημα',sys,'°C',name,sv.length?Math.min(...sv):null,sv.length?Math.max(...sv):null));
+        const isSys=sys!==null||(sig!==null&&temp===null&&hum===null&&prs===null);
 
-        // Collect chart data
-        if(tv.length>1){
-            const labels=r.map(x=>fmt(x.recorded_at));
-            chartDatasets.temp.push({label:name,data:r.map(x=>gv(x.data,KEYS.temp)),labels,color:CHART_COLORS.temp});
+        if(!isSys){
+            if(temp!==null) weatherMetrics.push(mCard('temp','🌡️',t('temperature'),temp,'°C',nm,tv.length?Math.min(...tv):null,tv.length?Math.max(...tv):null));
+            if(hum!==null) weatherMetrics.push(mCard('hum','💧',t('humidity'),hum,'%',nm,hv.length?Math.min(...hv):null,hv.length?Math.max(...hv):null));
+            if(prs!==null) weatherMetrics.push(mCard('prs','🔵',t('pressureLabel'),prs,'hPa',nm,pv.length?Math.min(...pv):null,pv.length?Math.max(...pv):null));
+            if(bat!==null) weatherMetrics.push(mCard('bat','🔋',t('battery'),bat,'%',nm,null,null));
+            if(batv!==null) weatherMetrics.push(mCard('bat','⚡',t('voltage'),batv,'V',nm,null,null));
         }
-        if(hv.length>1){
-            const labels=r.map(x=>fmt(x.recorded_at));
-            chartDatasets.hum.push({label:name,data:r.map(x=>gv(x.data,KEYS.hum)),labels,color:CHART_COLORS.hum});
+        if(isSys||sys!==null){
+            if(sys!==null) sysMetrics.push(mCard('sys','🖥️',t('systemTemp'),sys,'°C',nm,sv.length?Math.min(...sv):null,sv.length?Math.max(...sv):null));
         }
-        if(pv.length>1){
-            const labels=r.map(x=>fmt(x.recorded_at));
-            chartDatasets.prs.push({label:name,data:r.map(x=>gv(x.data,KEYS.prs)),labels,color:CHART_COLORS.prs});
-        }
-        if(sv.length>1){
-            const labels=r.map(x=>fmt(x.recorded_at));
-            chartDatasets.sys.push({label:name,data:r.map(x=>gv(x.data,KEYS.sys)),labels,color:CHART_COLORS.sys});
-        }
+        if(sig!==null) sysMetrics.push(mCard('sig','📶',t('signal'),sig,'dBm',nm,null,null));
 
-        if(s.latest) lastUpdate = s.latest.recorded_at;
+        // Charts
+        if(tv.length>1&&!isSys){const labels=r.map(x=>fmt(x.recorded_at));chartDS.temp.push({label:nm,data:r.map(x=>gv(x.data,KEYS.temp)),labels,color:CHART_C.temp})}
+        if(hv.length>1){const labels=r.map(x=>fmt(x.recorded_at));chartDS.hum.push({label:nm,data:r.map(x=>gv(x.data,KEYS.hum)),labels,color:CHART_C.hum})}
+        if(pv.length>1){const labels=r.map(x=>fmt(x.recorded_at));chartDS.prs.push({label:nm,data:r.map(x=>gv(x.data,KEYS.prs)),labels,color:CHART_C.prs})}
+        if(sv.length>1){const labels=r.map(x=>fmt(x.recorded_at));chartDS.sys.push({label:nm,data:r.map(x=>gv(x.data,KEYS.sys)),labels,color:CHART_C.sys})}
+
+        if(s.latest) lastUpdate=s.latest.recorded_at;
     }
 
-    // Build summary strip (pick key values)
-    let summaryItems = [];
-    const tempSensors = allData.filter(s=>s.latest&&gv(s.latest.data,KEYS.temp)!==null&&!KEYS.sys.some(k=>s.latest.data[k]!==undefined));
-    const humSensors = allData.filter(s=>s.latest&&gv(s.latest.data,KEYS.hum)!==null);
-    const prsSensors = allData.filter(s=>s.latest&&gv(s.latest.data,KEYS.prs)!==null);
+    if(lastUpdate) document.getElementById('last-update').textContent=`${t('lastUpdate')}: ${fmtDT(lastUpdate)}`;
 
-    if(tempSensors.length){
-        const vals=tempSensors.map(s=>gv(s.latest.data,KEYS.temp));
+    // Summary
+    const tempS=allData.filter(s=>s.latest&&gv(s.latest.data,KEYS.temp)!==null&&gv(s.latest.data,KEYS.sys)===null);
+    const prsS=allData.filter(s=>s.latest&&gv(s.latest.data,KEYS.prs)!==null);
+    const sigS=allData.filter(s=>s.latest&&gv(s.latest.data,KEYS.sig)!==null);
+
+    let summary='';
+    if(tempS.length){
+        const vals=tempS.map(s=>gv(s.latest.data,KEYS.temp));
         const avg=(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(1);
-        summaryItems.push(`<div class="summary-item"><div class="label">Μέση θερμ.</div><div class="val" style="color:var(--orange)">${avg}°</div><div class="sub">${vals.length} αισθ.</div></div>`);
+        summary+=`<div class="s-card s-temp"><div class="s-icon">🌡️</div><div class="s-body"><div class="s-label">${t('avgTemp')}</div><div class="s-val">${avg}<span class="s-unit">°C</span></div><div class="s-sub">${vals.length} ${t('nSensors')}</div></div></div>`;
     }
-    if(humSensors.length){
-        const vals=humSensors.map(s=>gv(s.latest.data,KEYS.hum));
-        const avg=(vals.reduce((a,b)=>a+b,0)/vals.length).toFixed(0);
-        summaryItems.push(`<div class="summary-item"><div class="label">Μέση υγρασία</div><div class="val" style="color:var(--accent)">${avg}%</div><div class="sub">${vals.length} αισθ.</div></div>`);
+    if(prsS.length){
+        const v=gv(prsS[0].latest.data,KEYS.prs);
+        summary+=`<div class="s-card s-prs"><div class="s-icon">🔵</div><div class="s-body"><div class="s-label">${t('pressure')}</div><div class="s-val">${v.toFixed(0)}<span class="s-unit"> hPa</span></div></div></div>`;
     }
-    if(prsSensors.length){
-        const v=gv(prsSensors[0].latest.data,KEYS.prs);
-        summaryItems.push(`<div class="summary-item"><div class="label">Πίεση</div><div class="val" style="color:var(--purple)">${v.toFixed(0)}</div><div class="sub">hPa</div></div>`);
+    summary+=`<div class="s-card s-count"><div class="s-icon">📡</div><div class="s-body"><div class="s-label">${t('sensors')}</div><div class="s-val">${allData.length}</div><div class="s-sub">${t('active')}</div></div></div>`;
+    if(sigS.length){
+        const v=gv(sigS[0].latest.data,KEYS.sig);
+        summary+=`<div class="s-card s-sig"><div class="s-icon">📶</div><div class="s-body"><div class="s-label">${t('wifiSignal')}</div><div class="s-val">${v.toFixed(0)}<span class="s-unit"> dBm</span></div><div class="s-sub">${sigLabel(v)}</div></div></div>`;
     }
-    summaryItems.push(`<div class="summary-item"><div class="label">Αισθητήρες</div><div class="val" style="color:var(--green)">${allData.length}</div><div class="sub">ενεργοί</div></div>`);
 
-    // Build charts HTML
-    let chartsHtml = '';
-    if(chartDatasets.temp.length) chartsHtml += `<div class="chart-card"><div class="ch-title">🌡️ Θερμοκρασία — 4 ώρες</div><div class="chart-wrap"><canvas id="ch_temp"></canvas></div></div>`;
-    if(chartDatasets.hum.length) chartsHtml += `<div class="chart-card"><div class="ch-title">💧 Υγρασία — 4 ώρες</div><div class="chart-wrap"><canvas id="ch_hum"></canvas></div></div>`;
-    if(chartDatasets.prs.length) chartsHtml += `<div class="chart-card"><div class="ch-title">🔵 Βαρομετρική πίεση — 4 ώρες</div><div class="chart-wrap"><canvas id="ch_prs"></canvas></div></div>`;
-    if(chartDatasets.sys.length) chartsHtml += `<div class="chart-card"><div class="ch-title">🖥️ Θερμοκρασία συστήματος — 4 ώρες</div><div class="chart-wrap"><canvas id="ch_sys"></canvas></div></div>`;
+    // Charts HTML
+    let chartsHtml='';
+    if(chartDS.temp.length) chartsHtml+=`<div class="ch-card"><div class="ch-title">🌡️ ${t('tempChart')}</div><div class="ch-wrap"><canvas id="ch_temp"></canvas></div></div>`;
+    if(chartDS.hum.length) chartsHtml+=`<div class="ch-card"><div class="ch-title">💧 ${t('humChart')}</div><div class="ch-wrap"><canvas id="ch_hum"></canvas></div></div>`;
+    if(chartDS.prs.length) chartsHtml+=`<div class="ch-card"><div class="ch-title">🔵 ${t('prsChart')}</div><div class="ch-wrap"><canvas id="ch_prs"></canvas></div></div>`;
+    if(chartDS.sys.length) chartsHtml+=`<div class="ch-card"><div class="ch-title">🖥️ ${t('sysChart')}</div><div class="ch-wrap"><canvas id="ch_sys"></canvas></div></div>`;
 
-    document.getElementById('dashboard').innerHTML = `
-        <div class="summary-strip">${summaryItems.join('')}</div>
-        <div class="dash">
-            <div class="section-title">Τρέχουσες μετρήσεις</div>
-            <div class="metrics-grid">${metrics.join('')}</div>
-            ${chartsHtml?`<div class="section-title">Ιστορικό (4 ώρες)</div><div class="charts-grid">${chartsHtml}</div>`:''}
-            ${lastUpdate?`<div class="status-bar"><span class="status-dot"></span> Τελευταία ενημέρωση: ${fmtDT(lastUpdate)}</div>`:''}
-        </div>
+    document.getElementById('dashboard').innerHTML=`
+        <div class="summary-row">${summary}</div>
+        ${weatherMetrics.length?`<div class="sec-label">${t('weather')}</div><div class="metrics-grid">${weatherMetrics.join('')}</div>`:''}
+        ${sysMetrics.length?`<div class="sec-label">${t('system')}</div><div class="metrics-grid">${sysMetrics.join('')}</div>`:''}
+        ${chartsHtml?`<div class="sec-label">${t('history')}</div><div class="charts-grid">${chartsHtml}</div>`:''}
     `;
 
-    // Render charts (multiple sensors per chart)
-    if(chartDatasets.temp.length) makeChart(document.getElementById('ch_temp'), chartDatasets.temp);
-    if(chartDatasets.hum.length) makeChart(document.getElementById('ch_hum'), chartDatasets.hum);
-    if(chartDatasets.prs.length) makeChart(document.getElementById('ch_prs'), chartDatasets.prs);
-    if(chartDatasets.sys.length) makeChart(document.getElementById('ch_sys'), chartDatasets.sys);
+    if(chartDS.temp.length)makeChart(document.getElementById('ch_temp'),chartDS.temp);
+    if(chartDS.hum.length)makeChart(document.getElementById('ch_hum'),chartDS.hum);
+    if(chartDS.prs.length)makeChart(document.getElementById('ch_prs'),chartDS.prs);
+    if(chartDS.sys.length)makeChart(document.getElementById('ch_sys'),chartDS.sys);
 }
 
+applyLang();
 loadDashboard();
-setInterval(()=>location.reload(), 5*60*1000);
+setInterval(()=>location.reload(),5*60*1000);
 </script>
 </body>
 </html>
-
