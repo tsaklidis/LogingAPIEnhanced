@@ -85,24 +85,25 @@ from django.utils import timezone
 
 class User(AbstractUser):
     """Extended user model for future fields (notification prefs, etc.)"""
+
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
 
 
 class Home(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name='homes')
+    owner = models.ForeignKey(User, on_delete=models.CASCADE, related_name="homes")
     name = models.CharField(max_length=128)
     location = models.CharField(max_length=255, blank=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
 
     class Meta:
-        indexes = [models.Index(fields=['owner'])]
+        indexes = [models.Index(fields=["owner"])]
 
 
 class Space(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    home = models.ForeignKey(Home, on_delete=models.CASCADE, related_name='spaces')
+    home = models.ForeignKey(Home, on_delete=models.CASCADE, related_name="spaces")
     name = models.CharField(max_length=128)  # "Living Room", "Bedroom", "Balcony"
     is_public = models.BooleanField(default=False)
     created_at = models.DateTimeField(auto_now_add=True)
@@ -111,7 +112,7 @@ class Space(models.Model):
 
 class Sensor(models.Model):
     id = models.UUIDField(primary_key=True, default=uuid.uuid4)
-    space = models.ForeignKey(Space, on_delete=models.CASCADE, related_name='sensors')
+    space = models.ForeignKey(Space, on_delete=models.CASCADE, related_name="sensors")
     name = models.CharField(max_length=128)
     sensor_type = models.CharField(max_length=64)  # "DHT22", "BME280", "BMP180"
     api_key = models.CharField(max_length=64, unique=True, db_index=True)
@@ -127,15 +128,16 @@ class SensorReading(models.Model):
 
     Example data: {"temperature": 25.6, "humidity": 48.2, "battery_percentage": 35, "battery_voltage": 3.2}
     """
+
     id = models.BigAutoField(primary_key=True)
-    sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE, related_name='readings')
+    sensor = models.ForeignKey(Sensor, on_delete=models.CASCADE, related_name="readings")
     data = models.JSONField()
     recorded_at = models.DateTimeField(default=timezone.now)
 
     class Meta:
-        ordering = ['-recorded_at']
+        ordering = ["-recorded_at"]
         indexes = [
-            models.Index(fields=['sensor', '-recorded_at']),
+            models.Index(fields=["sensor", "-recorded_at"]),
         ]
 ```
 
@@ -162,10 +164,10 @@ class SensorReading(models.Model):
 
 ```python
 SIMPLE_JWT = {
-    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=15),
-    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),
-    'ROTATE_REFRESH_TOKENS': True,
-    'BLACKLIST_AFTER_ROTATION': True,
+    "ACCESS_TOKEN_LIFETIME": timedelta(minutes=15),
+    "REFRESH_TOKEN_LIFETIME": timedelta(days=7),
+    "ROTATE_REFRESH_TOKENS": True,
+    "BLACKLIST_AFTER_ROTATION": True,
 }
 ```
 
@@ -175,21 +177,21 @@ SIMPLE_JWT = {
 from rest_framework.authentication import BaseAuthentication
 from rest_framework.exceptions import AuthenticationFailed
 
+
 class SensorKeyAuthentication(BaseAuthentication):
     """
     IoT devices send: X-Sensor-Key: <key>
     No username/password needed on the device.
     """
+
     def authenticate(self, request):
-        key = request.headers.get('X-Sensor-Key')
+        key = request.headers.get("X-Sensor-Key")
         if not key:
             return None
         try:
-            sensor = Sensor.objects.select_related(
-                'space__home__owner'
-            ).get(api_key=key, is_active=True)
+            sensor = Sensor.objects.select_related("space__home__owner").get(api_key=key, is_active=True)
         except Sensor.DoesNotExist:
-            raise AuthenticationFailed('Invalid or inactive sensor key')
+            raise AuthenticationFailed("Invalid or inactive sensor key")
         # Return (user, auth_info) — DRF convention
         return (sensor.space.home.owner, sensor)
 ```
@@ -315,11 +317,11 @@ if cached:
 
 ```python
 REST_FRAMEWORK = {
-    'DEFAULT_THROTTLE_CLASSES': ['rest_framework.throttling.ScopedRateThrottle'],
-    'DEFAULT_THROTTLE_RATES': {
-        'ingestion': '60/min',       # Per sensor key
-        'readings': '120/min',       # Per user
-        'management': '30/min',      # Per user
+    "DEFAULT_THROTTLE_CLASSES": ["rest_framework.throttling.ScopedRateThrottle"],
+    "DEFAULT_THROTTLE_RATES": {
+        "ingestion": "60/min",  # Per sensor key
+        "readings": "120/min",  # Per user
+        "management": "30/min",  # Per user
     },
 }
 ```

@@ -48,14 +48,8 @@ client = SensorClient(config)
 
 # Send readings for multiple sensors at once
 readings = [
-    {
-        "sensor_id": "uuid-of-temp-sensor",
-        "data": {"temperature": 22.5, "humidity": 48.2}
-    },
-    {
-        "sensor_id": "uuid-of-outdoor-sensor", 
-        "data": {"temperature": 15.0, "pressure": 1013.25}
-    }
+    {"sensor_id": "uuid-of-temp-sensor", "data": {"temperature": 22.5, "humidity": 48.2}},
+    {"sensor_id": "uuid-of-outdoor-sensor", "data": {"temperature": 15.0, "pressure": 1013.25}},
 ]
 
 client.send_gateway(readings)

@@ -74,7 +74,7 @@ sensor = SensorFactory()
 raw_key = sensor._raw_api_key  # Use this in X-Sensor-Key header
 
 home = HomeWithGatewayFactory()
-raw_key = home._raw_api_key    # Use this in X-Gateway-Key header
+raw_key = home._raw_api_key  # Use this in X-Gateway-Key header
 ```
 
 ## Writing Tests — Patterns
@@ -83,9 +83,9 @@ raw_key = home._raw_api_key    # Use this in X-Gateway-Key header
 
 ```python
 def test_list_homes(authenticated_client, home):
-    response = authenticated_client.get('/api/v1/homes/')
+    response = authenticated_client.get("/api/v1/homes/")
     assert response.status_code == 200
-    assert len(response.data['results']) == 1
+    assert len(response.data["results"]) == 1
 ```
 
 ### Sensor Ingestion
@@ -93,9 +93,9 @@ def test_list_homes(authenticated_client, home):
 ```python
 def test_ingest_reading(api_client, sensor):
     response = api_client.post(
-        '/api/v1/ingest/',
-        data={'data': {'temperature': 22.5}},
-        format='json',
+        "/api/v1/ingest/",
+        data={"data": {"temperature": 22.5}},
+        format="json",
         HTTP_X_SENSOR_KEY=sensor._raw_api_key,
     )
     assert response.status_code == 201
@@ -105,21 +105,21 @@ def test_ingest_reading(api_client, sensor):
 
 ```python
 def test_gateway_ingest(api_client, gateway_setup):
-    home = gateway_setup['home']
-    sensors = gateway_setup['sensors']
+    home = gateway_setup["home"]
+    sensors = gateway_setup["sensors"]
     response = api_client.post(
-        '/api/v1/ingest/gateway/',
+        "/api/v1/ingest/gateway/",
         data={
-            'readings': [
-                {'sensor_id': str(sensors[0].id), 'data': {'temperature': 22.5}},
-                {'sensor_id': str(sensors[1].id), 'data': {'co2': 400}},
+            "readings": [
+                {"sensor_id": str(sensors[0].id), "data": {"temperature": 22.5}},
+                {"sensor_id": str(sensors[1].id), "data": {"co2": 400}},
             ]
         },
-        format='json',
+        format="json",
         HTTP_X_GATEWAY_KEY=home._raw_api_key,
     )
     assert response.status_code == 201
-    assert response.data['count'] == 2
+    assert response.data["count"] == 2
 ```
 
 ### Owner Isolation
@@ -132,7 +132,7 @@ def test_cannot_access_others_home(api_client):
     my_user = UserFactory()
     api_client.force_authenticate(user=my_user)
 
-    response = api_client.get(f'/api/v1/homes/{other_home.id}/')
+    response = api_client.get(f"/api/v1/homes/{other_home.id}/")
     assert response.status_code == 404  # Not 403 — we don't leak existence
 ```
 

@@ -175,12 +175,12 @@ Returns `200` with `{"status": "healthy"}` or `503` with `{"status": "unhealthy"
 Root URL conf is `config/urls.py`:
 
 ```python
-path('api/v1/auth/', include('apps.accounts.urls'))    # Auth endpoints
-path('api/v1/',      include('apps.homes.urls'))        # Home + Space endpoints
-path('api/v1/',      include('apps.sensors.urls'))      # Sensor, ingest, reading endpoints
-path('api/v1/health/', include('apps.common.urls'))     # Health check
-path('api/schema/',  SpectacularAPIView)                # OpenAPI schema
-path('api/docs/',    SpectacularSwaggerView)             # Swagger UI
-path('admin/',       admin.site.urls)                    # Django admin
+path("api/v1/auth/", include("apps.accounts.urls"))  # Auth endpoints
+path("api/v1/", include("apps.homes.urls"))  # Home + Space endpoints
+path("api/v1/", include("apps.sensors.urls"))  # Sensor, ingest, reading endpoints
+path("api/v1/health/", include("apps.common.urls"))  # Health check
+path("api/schema/", SpectacularAPIView)  # OpenAPI schema
+path("api/docs/", SpectacularSwaggerView)  # Swagger UI
+path("admin/", admin.site.urls)  # Django admin
 ```
 
