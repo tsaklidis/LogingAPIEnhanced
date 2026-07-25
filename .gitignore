@@ -61,6 +61,12 @@ dmypy.json
 # Docker
 pgdata/
 
+# Kubernetes (not used in current deployment)
+k8s/
+
+# Server-specific nginx configs
+nginx/*.vhost
+
 # OS
 .DS_Store
 Thumbs.db
