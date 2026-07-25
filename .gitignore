@@ -67,6 +67,11 @@ k8s/
 # Server-specific nginx configs
 nginx/*.vhost
 
+# Client config (contains API keys)
+client/config.json
+client/unsent_data.json
+client/logs/
+
 # OS
 .DS_Store
 Thumbs.db

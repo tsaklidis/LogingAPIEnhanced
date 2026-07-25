@@ -1,0 +1,11 @@
+{
+    "api_url": "https://logs.tsaklidis.gr",
+    "gateway_key": "YOUR_GATEWAY_KEY_HERE",
+
+    "_comment": "Map sensor MAC addresses or names to their UUIDs from the platform",
+    "sensors": {
+        "A4:C1:38:XX:XX:XX": "sensor-uuid-from-platform",
+        "living_room_thermo": "another-sensor-uuid"
+    }
+}
+
