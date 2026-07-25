@@ -50,10 +50,11 @@
         .sec-header{font-size:.75rem;color:var(--text3);margin:1.5rem 0 .75rem;font-weight:500;display:flex;align-items:center;gap:.5rem}
 
         /* Two column layout */
-        .two-col{display:grid;grid-template-columns:1fr 1fr;gap:.75rem;margin-bottom:1.75rem}
+        .two-col{display:grid;grid-template-columns:auto 1fr;gap:1.5rem;margin-bottom:1.75rem;align-items:start}
 
         /* Weather sensor cards */
-        .wx-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;display:flex;align-items:center;gap:.85rem;position:relative;overflow:hidden}
+        .wx-grid{display:flex;gap:.75rem;flex-wrap:wrap}
+        .wx-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1.1rem;display:flex;align-items:center;gap:.85rem;position:relative;overflow:hidden;min-width:220px;flex:1}
         .wx-card .wx-icon{width:40px;height:40px;border-radius:11px;display:flex;align-items:center;justify-content:center;font-size:1.1rem;flex-shrink:0}
         .wx-card .wx-body{flex:1}
         .wx-card .wx-name{font-size:.65rem;color:var(--text2);margin-bottom:.1rem}
@@ -70,7 +71,7 @@
         .wx-hum .wx-val{color:var(--accent)}
 
         /* Quick overview stats */
-        .stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.75rem}
+        .stats-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem}
         .stat-card{background:var(--bg-card);border:1px solid var(--border);border-radius:var(--radius);padding:1rem;text-align:center}
         .stat-card .st-label{font-size:.6rem;color:var(--text3);margin-bottom:.3rem}
         .stat-card .st-val{font-size:1.4rem;font-weight:700;line-height:1.1}
@@ -121,6 +122,7 @@
             .main{padding:1rem}
             .hero-row{grid-template-columns:1fr}
             .two-col{grid-template-columns:1fr}
+            .wx-grid{flex-direction:column}
             .stats-grid{grid-template-columns:repeat(2,1fr)}
             .sys-grid{grid-template-columns:1fr}
             .hero-card .h-val{font-size:1.5rem}
@@ -282,7 +284,7 @@ async function loadDashboard(){
     document.getElementById('dashboard').innerHTML=`
         ${hero}
         <div class="two-col">
-            <div><div class="sec-header">☀️ ${t('weather')}</div>${wxCards}</div>
+            <div><div class="sec-header">☀️ ${t('weather')}</div><div class="wx-grid">${wxCards}</div></div>
             <div><div class="sec-header">◎ ${t('quickOverview')}</div>${statsHtml}</div>
         </div>
         ${chartsHtml?`<div class="sec-header">📊 ${t('history')}</div><div class="charts-grid">${chartsHtml}</div>`:''}
