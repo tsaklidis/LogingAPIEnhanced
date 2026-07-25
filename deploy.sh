@@ -18,7 +18,7 @@ docker compose -f docker-compose.yml -f docker-compose.prod.yml up -d web celery
 
 echo ""
 echo "⏳ Waiting for health check..."
-sleep 5
+sleep 10
 STATUS=$(curl -s -o /dev/null -w '%{http_code}' -H 'Host: logs.tsaklidis.gr' http://127.0.0.1:8080/api/v1/health/)
 
 if [ "$STATUS" = "200" ]; then
