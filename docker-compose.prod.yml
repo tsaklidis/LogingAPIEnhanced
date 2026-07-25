@@ -53,7 +53,7 @@ services:
     restart: unless-stopped
 
   grafana:
-    image: grafana/grafana:latest
+    image: grafana/grafana-oss:10.4.0
     restart: unless-stopped
     ports:
       - "127.0.0.1:3000:3000"
@@ -61,6 +61,16 @@ services:
       - GF_SECURITY_ADMIN_PASSWORD=${GRAFANA_ADMIN_PASSWORD:-admin}
       - GF_SERVER_ROOT_URL=https://grafana.tsaklidis.gr/
       - GF_SERVER_SERVE_FROM_SUB_PATH=false
+      - GF_INSTALL_PLUGINS=
+      - GF_PLUGINS_ENABLE_ALPHA=false
+      - GF_UNIFIED_ALERTING_ENABLED=false
+      - GF_ALERTING_ENABLED=false
+      - GF_EXPLORE_ENABLED=false
+      - GF_PLUGIN_CATALOG_URL=https://disabled.invalid
+    deploy:
+      resources:
+        limits:
+          memory: 200M
     volumes:
       - grafana_data:/var/lib/grafana
     depends_on:
