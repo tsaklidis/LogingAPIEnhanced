@@ -5,10 +5,10 @@ from .serializers import UserRegistrationSerializer, UserSerializer
 
 
 class UserRegistrationView(generics.CreateAPIView):
-    """Register a new user account."""
+    """Register a new user account. Restricted to admin users only."""
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
-    permission_classes = [permissions.AllowAny]
+    permission_classes = [permissions.IsAdminUser]
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
