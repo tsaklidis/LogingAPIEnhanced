@@ -23,7 +23,7 @@ import json
 import os
 import sys
 import time
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 
 import requests
 
@@ -167,7 +167,7 @@ class SensorClient:
         """Save failed readings to disk for later retry."""
         existing = self._load_unsent()
         for r in readings:
-            r['_buffered_at'] = datetime.now(timezone.utc).isoformat()
+            r['_buffered_at'] = datetime.now(UTC).isoformat()
         existing.extend(readings)
         try:
             with open(UNSENT_FILE, 'w') as f:

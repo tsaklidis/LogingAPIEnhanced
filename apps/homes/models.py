@@ -33,12 +33,13 @@ class Home(models.Model):
         db_table = 'homes'
         indexes = [models.Index(fields=['owner'])]
 
+    def __str__(self):
+        return self.name
+
     @property
     def has_gateway_key(self):
         return bool(self.key_hash)
 
-    def __str__(self):
-        return self.name
 
 
 class Space(models.Model):

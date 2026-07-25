@@ -29,7 +29,7 @@ class SensorKeyAuthentication(BaseAuthentication):
                 'space__home__owner'
             ).get(key_prefix=prefix, is_active=True)
         except Sensor.DoesNotExist:
-            raise AuthenticationFailed('Invalid or inactive sensor key')
+            raise AuthenticationFailed('Invalid or inactive sensor key') from None
 
         if not verify_key(raw_key, sensor.key_hash):
             raise AuthenticationFailed('Invalid or inactive sensor key')
@@ -60,7 +60,7 @@ class GatewayKeyAuthentication(BaseAuthentication):
         try:
             home = Home.objects.select_related('owner').get(key_prefix=prefix)
         except Home.DoesNotExist:
-            raise AuthenticationFailed('Invalid gateway key')
+            raise AuthenticationFailed('Invalid gateway key') from None
 
         if not home.key_hash or not verify_key(raw_key, home.key_hash):
             raise AuthenticationFailed('Invalid gateway key')

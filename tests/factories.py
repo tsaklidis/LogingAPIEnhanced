@@ -1,4 +1,3 @@
-import secrets
 
 import factory
 from django.utils import timezone
