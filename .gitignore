@@ -83,3 +83,6 @@ desktop.ini
 # Distribution
 *.tar.gz
 *.whl
+
+# Grafana - never commit secrets
+grafana/provisioning/datasources/datasources.yaml
