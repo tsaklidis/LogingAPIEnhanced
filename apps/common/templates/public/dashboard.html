@@ -62,7 +62,7 @@
         .hero-card.prs .hero-icon{background:rgba(56,189,248,.15)}
         .hero-card .hero-label{font-size:0.7rem;color:#94a3b8;letter-spacing:0.03em}
         .hero-card .hero-sensor{font-size:0.6rem;color:#64748b;margin-top:1px}
-        .hero-card .hero-val{font-size:2.4rem;font-weight:600;line-height:1}
+        .hero-card .hero-val{font-size:2.4rem;line-height:1}
         .hero-card.temp .hero-val{color:#ef4444}
         .hero-card.prs .hero-val{color:#38bdf8}
         .hero-card .hero-unit{font-size:1rem;font-weight:400;color:#64748b;margin-left:0.15rem}
@@ -248,7 +248,7 @@ async function load() {
         <div class="hero-card temp">
             <div class="accent"></div>
             <div class="hero-top">
-                <div class="hero-icon">🌡️</div>
+                <div class="hero-icon">🌡</div>
                 <div><div class="hero-label">Θερμοκρασία</div><div class="hero-sensor">DS18B20</div></div>
             </div>
             <div class="hero-val">${tempVal !== null ? tempVal.toFixed(1) : '--'}<span class="hero-unit">°C</span></div>
@@ -258,7 +258,7 @@ async function load() {
         <div class="hero-card prs">
             <div class="accent"></div>
             <div class="hero-top">
-                <div class="hero-icon">🔵</div>
+                <div class="hero-icon">⏲</div>
                 <div><div class="hero-label">Βαρομετρική πίεση</div><div class="hero-sensor">BMP280</div></div>
             </div>
             <div class="hero-val">${prsVal !== null ? prsVal.toFixed(2) : '--'}<span class="hero-unit">hPa</span></div>
