@@ -1,0 +1,450 @@
+{
+  "annotations": { "list": [{ "builtIn": 1, "datasource": { "type": "grafana", "uid": "-- Grafana --" }, "enable": true, "hide": true, "iconColor": "rgba(0, 211, 255, 1)", "name": "Annotations & Alerts", "type": "dashboard" }] },
+  "editable": true,
+  "graphTooltip": 1,
+  "id": null,
+  "panels": [
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 0 },
+      "id": 500,
+      "title": "🛋️ Σαλόνι (Living Room)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-GrYlRd" }, "unit": "celsius", "decimals": 1, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }, { "color": "green", "value": 18 }, { "color": "yellow", "value": 26 }, { "color": "red", "value": 32 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 0, "y": 1 },
+      "id": 1,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "🌡️ Temperature",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'temperature')::float AS \"value\" FROM sensor_readings WHERE sensor_id = '0d42062f-442d-46a5-8c2f-6a27636117f7' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-BlYlRd" }, "unit": "humidity", "decimals": 1, "min": 0, "max": 100, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 30 }, { "color": "yellow", "value": 60 }, { "color": "red", "value": 80 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 5, "y": 1 },
+      "id": 2,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "💧 Humidity",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"value\" FROM sensor_readings WHERE sensor_id = 'dfc251f4-911d-4460-9376-b81705250563' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-GrYlRd" }, "unit": "volt", "decimals": 3, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": 2.5 }, { "color": "green", "value": 2.9 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 10, "y": 1 },
+      "id": 3,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "🔋 Battery V",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_voltage')::float AS \"value\" FROM sensor_readings WHERE sensor_id = 'f5885da3-27f4-4e00-9a68-7e74b415e1b1' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-GrYlRd" }, "unit": "percent", "decimals": 0, "min": 0, "max": 100, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": 20 }, { "color": "green", "value": 50 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 15, "y": 1 },
+      "id": 4,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "🔋 Battery %",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_level')::float AS \"value\" FROM sensor_readings WHERE sensor_id = '499245a9-3878-4328-a7f7-817c3eb33201' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "unit": "dBm", "decimals": 0, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": -80 }, { "color": "yellow", "value": -70 }, { "color": "green", "value": -60 }] }, "mappings": [{ "options": { "from": -50, "to": 0, "result": { "text": "Excellent" } }, "type": "range" }, { "options": { "from": -60, "to": -50, "result": { "text": "Good" } }, "type": "range" }, { "options": { "from": -70, "to": -60, "result": { "text": "Fair" } }, "type": "range" }, { "options": { "from": -80, "to": -70, "result": { "text": "Weak" } }, "type": "range" }, { "options": { "from": -100, "to": -80, "result": { "text": "Poor" } }, "type": "range" }] } },
+      "gridPos": { "h": 3, "w": 4, "x": 20, "y": 1 },
+      "id": 5,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": false, "textMode": "value_and_name" },
+      "title": "📶 Signal",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'signal_strength')::float AS \"value\" FROM sensor_readings WHERE sensor_id = '4fa07448-cc97-42ae-9e56-e637b48069a8' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#FF6B6B", "mode": "fixed" }, "custom": { "axisBorderShow": false, "axisLabel": "°C", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 15, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "celsius", "decimals": 1 } },
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 4 },
+      "id": 6,
+      "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single", "sort": "none" } },
+      "title": "🌡️ Temperature History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'temperature')::float AS \"Σαλόνι\" FROM sensor_readings WHERE sensor_id = '0d42062f-442d-46a5-8c2f-6a27636117f7' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#FF6B6B", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisLabel": "%", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 15, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "humidity", "decimals": 1, "min": 0, "max": 100 } },
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 4 },
+      "id": 7,
+      "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single", "sort": "none" } },
+      "title": "💧 Humidity History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"Σαλόνι\" FROM sensor_readings WHERE sensor_id = 'dfc251f4-911d-4460-9376-b81705250563' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#FF6B6B", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisLabel": "", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "volt", "decimals": 3 } },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 11 },
+      "id": 8,
+      "options": { "legend": { "calcs": ["lastNotNull", "min"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "🔋 Battery Voltage History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_voltage')::float AS \"Voltage\" FROM sensor_readings WHERE sensor_id = 'f5885da3-27f4-4e00-9a68-7e74b415e1b1' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#FF6B6B", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisLabel": "", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "percent", "decimals": 0, "min": 0, "max": 100 } },
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 11 },
+      "id": 9,
+      "options": { "legend": { "calcs": ["lastNotNull", "min"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "🔋 Battery Level History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_level')::float AS \"Level\" FROM sensor_readings WHERE sensor_id = '499245a9-3878-4328-a7f7-817c3eb33201' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#FF6B6B", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisLabel": "dBm", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "dBm", "decimals": 0 } },
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 11 },
+      "id": 10,
+      "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "📶 Signal History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'signal_strength')::float AS \"RSSI\" FROM sensor_readings WHERE sensor_id = '4fa07448-cc97-42ae-9e56-e637b48069a8' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 17 },
+      "id": 501,
+      "title": "📦 Αποθήκη (Storage)",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-GrYlRd" }, "unit": "celsius", "decimals": 1, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }, { "color": "green", "value": 18 }, { "color": "yellow", "value": 26 }, { "color": "red", "value": 32 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 0, "y": 18 },
+      "id": 101,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "🌡️ Temperature",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'temperature')::float AS \"value\" FROM sensor_readings WHERE sensor_id = 'ee4af834-f793-45af-80e8-b7461aac56c8' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-BlYlRd" }, "unit": "humidity", "decimals": 1, "min": 0, "max": 100, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 30 }, { "color": "yellow", "value": 60 }, { "color": "red", "value": 80 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 5, "y": 18 },
+      "id": 102,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "💧 Humidity",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"value\" FROM sensor_readings WHERE sensor_id = '65c6708b-324e-44be-9ed9-a2709b0b97a7' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-GrYlRd" }, "unit": "volt", "decimals": 3, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": 2.5 }, { "color": "green", "value": 2.9 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 10, "y": 18 },
+      "id": 103,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "🔋 Battery V",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_voltage')::float AS \"value\" FROM sensor_readings WHERE sensor_id = 'dbab2d79-699d-477c-92a4-a6e796716384' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-GrYlRd" }, "unit": "percent", "decimals": 0, "min": 0, "max": 100, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": 20 }, { "color": "green", "value": 50 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 15, "y": 18 },
+      "id": 104,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "🔋 Battery %",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_level')::float AS \"value\" FROM sensor_readings WHERE sensor_id = '8f8a4f76-d22e-416a-8f30-cdec787bbf5d' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "unit": "dBm", "decimals": 0, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": -80 }, { "color": "yellow", "value": -70 }, { "color": "green", "value": -60 }] } } },
+      "gridPos": { "h": 3, "w": 4, "x": 20, "y": 18 },
+      "id": 105,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": false, "textMode": "value_and_name" },
+      "title": "📶 Signal",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'signal_strength')::float AS \"value\" FROM sensor_readings WHERE sensor_id = 'fe0e9dbf-ac79-4cec-97e3-c644ad094e16' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#4ECDC4", "mode": "fixed" }, "custom": { "axisBorderShow": false, "axisLabel": "°C", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 15, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "celsius", "decimals": 1 } },
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 21 },
+      "id": 106,
+      "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "🌡️ Temperature History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'temperature')::float AS \"Αποθήκη\" FROM sensor_readings WHERE sensor_id = 'ee4af834-f793-45af-80e8-b7461aac56c8' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#4ECDC4", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisLabel": "%", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 15, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "humidity", "decimals": 1, "min": 0, "max": 100 } },
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 21 },
+      "id": 107,
+      "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "💧 Humidity History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"Αποθήκη\" FROM sensor_readings WHERE sensor_id = '65c6708b-324e-44be-9ed9-a2709b0b97a7' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#4ECDC4", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "volt", "decimals": 3 } },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 28 },
+      "id": 108,
+      "options": { "legend": { "calcs": ["lastNotNull", "min"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "🔋 Battery Voltage History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_voltage')::float AS \"Voltage\" FROM sensor_readings WHERE sensor_id = 'dbab2d79-699d-477c-92a4-a6e796716384' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#4ECDC4", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "percent", "decimals": 0, "min": 0, "max": 100 } },
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 28 },
+      "id": 109,
+      "options": { "legend": { "calcs": ["lastNotNull", "min"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "🔋 Battery Level History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_level')::float AS \"Level\" FROM sensor_readings WHERE sensor_id = '8f8a4f76-d22e-416a-8f30-cdec787bbf5d' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#4ECDC4", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisLabel": "dBm", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "dBm", "decimals": 0 } },
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 28 },
+      "id": 110,
+      "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "📶 Signal History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'signal_strength')::float AS \"RSSI\" FROM sensor_readings WHERE sensor_id = 'fe0e9dbf-ac79-4cec-97e3-c644ad094e16' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 34 },
+      "id": 502,
+      "title": "🖥️ Office",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-GrYlRd" }, "unit": "celsius", "decimals": 1, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }, { "color": "green", "value": 18 }, { "color": "yellow", "value": 26 }, { "color": "red", "value": 32 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 0, "y": 35 },
+      "id": 201,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "🌡️ Temperature",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'temperature')::float AS \"value\" FROM sensor_readings WHERE sensor_id = '5b1a43c4-e114-4a17-b405-f65ed7a09400' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-BlYlRd" }, "unit": "humidity", "decimals": 1, "min": 0, "max": 100, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 30 }, { "color": "yellow", "value": 60 }, { "color": "red", "value": 80 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 5, "y": 35 },
+      "id": 202,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "💧 Humidity",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"value\" FROM sensor_readings WHERE sensor_id = '76742e65-0d8e-420d-ba06-7c337644d423' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-GrYlRd" }, "unit": "volt", "decimals": 3, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": 2.5 }, { "color": "green", "value": 2.9 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 10, "y": 35 },
+      "id": 203,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "🔋 Battery V",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_voltage')::float AS \"value\" FROM sensor_readings WHERE sensor_id = '111689c0-43fb-483b-af02-f2367423ddfa' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-GrYlRd" }, "unit": "percent", "decimals": 0, "min": 0, "max": 100, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": 20 }, { "color": "green", "value": 50 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 15, "y": 35 },
+      "id": 204,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "🔋 Battery %",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_level')::float AS \"value\" FROM sensor_readings WHERE sensor_id = 'de4ba1f9-a345-4e9a-8be8-649f7ca8a8d8' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "unit": "dBm", "decimals": 0, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": -80 }, { "color": "yellow", "value": -70 }, { "color": "green", "value": -60 }] } } },
+      "gridPos": { "h": 3, "w": 4, "x": 20, "y": 35 },
+      "id": 205,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": false, "textMode": "value_and_name" },
+      "title": "📶 Signal",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'signal_strength')::float AS \"value\" FROM sensor_readings WHERE sensor_id = '764aee86-3e6a-4161-a695-269c3f0ae03d' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#45B7D1", "mode": "fixed" }, "custom": { "axisBorderShow": false, "axisLabel": "°C", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 15, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "celsius", "decimals": 1 } },
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 38 },
+      "id": 206,
+      "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "🌡️ Temperature History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'temperature')::float AS \"Office\" FROM sensor_readings WHERE sensor_id = '5b1a43c4-e114-4a17-b405-f65ed7a09400' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#45B7D1", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisLabel": "%", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 15, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "humidity", "decimals": 1, "min": 0, "max": 100 } },
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 38 },
+      "id": 207,
+      "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "💧 Humidity History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"Office\" FROM sensor_readings WHERE sensor_id = '76742e65-0d8e-420d-ba06-7c337644d423' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#45B7D1", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "volt", "decimals": 3 } },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 45 },
+      "id": 208,
+      "options": { "legend": { "calcs": ["lastNotNull", "min"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "🔋 Battery Voltage History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_voltage')::float AS \"Voltage\" FROM sensor_readings WHERE sensor_id = '111689c0-43fb-483b-af02-f2367423ddfa' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#45B7D1", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "percent", "decimals": 0, "min": 0, "max": 100 } },
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 45 },
+      "id": 209,
+      "options": { "legend": { "calcs": ["lastNotNull", "min"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "🔋 Battery Level History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_level')::float AS \"Level\" FROM sensor_readings WHERE sensor_id = 'de4ba1f9-a345-4e9a-8be8-649f7ca8a8d8' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#45B7D1", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisLabel": "dBm", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "dBm", "decimals": 0 } },
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 45 },
+      "id": 210,
+      "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "📶 Signal History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'signal_strength')::float AS \"RSSI\" FROM sensor_readings WHERE sensor_id = '764aee86-3e6a-4161-a695-269c3f0ae03d' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+
+    {
+      "collapsed": false,
+      "gridPos": { "h": 1, "w": 24, "x": 0, "y": 51 },
+      "id": 503,
+      "title": "🛏️ Bedroom",
+      "type": "row"
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-GrYlRd" }, "unit": "celsius", "decimals": 1, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }, { "color": "green", "value": 18 }, { "color": "yellow", "value": 26 }, { "color": "red", "value": 32 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 0, "y": 52 },
+      "id": 301,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "🌡️ Temperature",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'temperature')::float AS \"value\" FROM sensor_readings WHERE sensor_id = 'b48e31ee-cb57-4455-9cbc-53cd41e6d1c4' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-BlYlRd" }, "unit": "humidity", "decimals": 1, "min": 0, "max": 100, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "green", "value": 30 }, { "color": "yellow", "value": 60 }, { "color": "red", "value": 80 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 5, "y": 52 },
+      "id": 302,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "💧 Humidity",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"value\" FROM sensor_readings WHERE sensor_id = 'c393edb9-4756-4337-9af1-c69f7e77af6f' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-GrYlRd" }, "unit": "volt", "decimals": 3, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": 2.5 }, { "color": "green", "value": 2.9 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 10, "y": 52 },
+      "id": 303,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "🔋 Battery V",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_voltage')::float AS \"value\" FROM sensor_readings WHERE sensor_id = '79942ea9-1bd6-4499-b16c-f25ff08a7adc' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "continuous-GrYlRd" }, "unit": "percent", "decimals": 0, "min": 0, "max": 100, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": 20 }, { "color": "green", "value": 50 }] } } },
+      "gridPos": { "h": 3, "w": 5, "x": 15, "y": 52 },
+      "id": 304,
+      "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
+      "title": "🔋 Battery %",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_level')::float AS \"value\" FROM sensor_readings WHERE sensor_id = '41125cd5-087f-48f0-9c63-1f8ebf7e2668' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "unit": "dBm", "decimals": 0, "thresholds": { "mode": "absolute", "steps": [{ "color": "red", "value": null }, { "color": "orange", "value": -80 }, { "color": "yellow", "value": -70 }, { "color": "green", "value": -60 }] } } },
+      "gridPos": { "h": 3, "w": 4, "x": 20, "y": 52 },
+      "id": 305,
+      "options": { "colorMode": "background", "graphMode": "none", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": false, "textMode": "value_and_name" },
+      "title": "📶 Signal",
+      "type": "stat",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'signal_strength')::float AS \"value\" FROM sensor_readings WHERE sensor_id = '33ab82fc-76cc-4778-bbc1-a1941c9d4e8b' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#96CEB4", "mode": "fixed" }, "custom": { "axisBorderShow": false, "axisLabel": "°C", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 15, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "celsius", "decimals": 1 } },
+      "gridPos": { "h": 7, "w": 12, "x": 0, "y": 55 },
+      "id": 306,
+      "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "🌡️ Temperature History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'temperature')::float AS \"Bedroom\" FROM sensor_readings WHERE sensor_id = 'b48e31ee-cb57-4455-9cbc-53cd41e6d1c4' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#96CEB4", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisLabel": "%", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 15, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "humidity", "decimals": 1, "min": 0, "max": 100 } },
+      "gridPos": { "h": 7, "w": 12, "x": 12, "y": 55 },
+      "id": 307,
+      "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "💧 Humidity History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"Bedroom\" FROM sensor_readings WHERE sensor_id = 'c393edb9-4756-4337-9af1-c69f7e77af6f' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#96CEB4", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "volt", "decimals": 3 } },
+      "gridPos": { "h": 6, "w": 8, "x": 0, "y": 62 },
+      "id": 308,
+      "options": { "legend": { "calcs": ["lastNotNull", "min"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "🔋 Battery Voltage History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_voltage')::float AS \"Voltage\" FROM sensor_readings WHERE sensor_id = '79942ea9-1bd6-4499-b16c-f25ff08a7adc' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#96CEB4", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "percent", "decimals": 0, "min": 0, "max": 100 } },
+      "gridPos": { "h": 6, "w": 8, "x": 8, "y": 62 },
+      "id": 309,
+      "options": { "legend": { "calcs": ["lastNotNull", "min"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "🔋 Battery Level History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'battery_level')::float AS \"Level\" FROM sensor_readings WHERE sensor_id = '41125cd5-087f-48f0-9c63-1f8ebf7e2668' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    },
+    {
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
+      "fieldConfig": { "defaults": { "color": { "fixedColor": "#96CEB4", "mode": "shades" }, "custom": { "axisBorderShow": false, "axisLabel": "dBm", "axisPlacement": "auto", "drawStyle": "line", "fillOpacity": 10, "gradientMode": "scheme", "lineInterpolation": "smooth", "lineWidth": 2, "pointSize": 4, "showPoints": "auto", "spanNulls": false, "insertNulls": 3600000 }, "unit": "dBm", "decimals": 0 } },
+      "gridPos": { "h": 6, "w": 8, "x": 16, "y": 62 },
+      "id": 310,
+      "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
+      "title": "📶 Signal History",
+      "type": "timeseries",
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'signal_strength')::float AS \"RSSI\" FROM sensor_readings WHERE sensor_id = '33ab82fc-76cc-4778-bbc1-a1941c9d4e8b' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+    }
+  ],
+  "schemaVersion": 39,
+  "tags": ["home", "sensors", "rooms"],
+  "templating": { "list": [] },
+  "time": { "from": "now-24h", "to": "now" },
+  "timepicker": {},
+  "timezone": "browser",
+  "title": "🏠 Sensors — Per Room Detail",
+  "uid": "sensors-per-room",
+  "version": 1,
+  "refresh": "5m"
+}
+
