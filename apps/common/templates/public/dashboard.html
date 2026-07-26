@@ -130,7 +130,7 @@ function fmtDateTime(iso) {
 
 const K = {
     temp: ['temperature','temp','ds18b20'],
-    prs: ['pressure','prs','bmp280','bmp180'],
+    prs: ['pressure','prs','bmp280','bmp180','bar','hPa','barometric_pressure'],
     sys: ['system_temperature','cpu_temp','system'],
     sig: ['signal','wifi','rssi','signal_strength','wifi_signal']
 };
@@ -182,7 +182,7 @@ async function load() {
     for (const s of sensors) {
         const n = s.name.toLowerCase(), t = (s.sensor_type||'').toLowerCase();
         if (!tempS && (n.includes('ds18b20') || t.includes('ds18b20'))) tempS = s;
-        if (!prsS && (n.includes('bmp280') || t.includes('bmp280') || n.includes('pressure'))) prsS = s;
+        if (!prsS && (n.includes('bmp') || t.includes('bmp') || n.includes('pressure') || t.includes('pressure'))) prsS = s;
         if (!sysS && (n.includes('system') || n.includes('cpu'))) sysS = s;
         if (!sigS && (n.includes('wifi') || n.includes('signal'))) sigS = s;
     }
