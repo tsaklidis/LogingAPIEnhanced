@@ -54,6 +54,7 @@ class TestRegistration:
         )
         assert response.status_code == status.HTTP_201_CREATED
         assert response.data["username"] == "newuser"
+        assert response.data["is_active"] is False
 
     def test_register_password_mismatch(self, api_client):
         response = api_client.post(

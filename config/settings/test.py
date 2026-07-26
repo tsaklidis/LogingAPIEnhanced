@@ -20,6 +20,7 @@ PASSWORD_HASHERS = [
 
 # Disable throttling in tests
 REST_FRAMEWORK["DEFAULT_THROTTLE_CLASSES"] = []  # noqa: F405
+REST_FRAMEWORK["DEFAULT_THROTTLE_RATES"] = {}  # noqa: F405
 
 # Use local memory cache for tests
 CACHES = {

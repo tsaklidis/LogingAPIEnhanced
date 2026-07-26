@@ -10,7 +10,7 @@ from apps.homes.models import Home, Space
 from .authentication import GatewayKeyAuthentication, SensorKeyAuthentication
 from .filters import SensorReadingFilter
 from .models import Sensor, SensorReading
-from .permissions import IsSensorOwner, IsSensorPublic
+from .permissions import IsSensorOwner
 from .serializers import (
     BulkIngestSerializer,
     GatewayIngestSerializer,
@@ -167,7 +167,7 @@ class SensorReadingListView(generics.ListAPIView):
     """List readings for a sensor (owner-scoped)."""
 
     serializer_class = SensorReadingSerializer
-    permission_classes = [permissions.IsAuthenticated, IsSensorOwner]
+    permission_classes = [permissions.IsAuthenticated]
     filterset_class = SensorReadingFilter
     ordering_fields = ["recorded_at"]
     ordering = ["-recorded_at"]
@@ -176,6 +176,7 @@ class SensorReadingListView(generics.ListAPIView):
     def get_queryset(self):
         return SensorReading.objects.filter(
             sensor_id=self.kwargs["sensor_pk"],
+            sensor__space__home__owner=self.request.user,
         )
 
 
@@ -206,7 +207,7 @@ class PublicSensorReadingListView(generics.ListAPIView):
     """List readings for a public sensor (no auth required)."""
 
     serializer_class = SensorReadingSerializer
-    permission_classes = [IsSensorPublic]
+    permission_classes = [permissions.AllowAny]
     authentication_classes = []
     filterset_class = SensorReadingFilter
     ordering_fields = ["recorded_at"]
@@ -215,16 +216,24 @@ class PublicSensorReadingListView(generics.ListAPIView):
     def get_queryset(self):
         return SensorReading.objects.filter(
             sensor_id=self.kwargs["sensor_pk"],
+            sensor__space__is_public=True,
         )
 
 
 class PublicSensorReadingLatestView(APIView):
     """Get the latest reading for a public sensor."""
 
-    permission_classes = [IsSensorPublic]
+    permission_classes = [permissions.AllowAny]
     authentication_classes = []
 
     def get(self, request, sensor_pk):
+        # Check sensor exists and is public
+        if not Sensor.objects.filter(pk=sensor_pk, space__is_public=True).exists():
+            return Response(
+                {"detail": "Not found."},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+
         cached = cache.get(f"sensor:{sensor_pk}:latest")
         if cached:
             return Response(cached)
@@ -272,6 +281,13 @@ class GatewayIngestView(APIView):
     def post(self, request):
         home = request.auth
 
+        # Reject if not authenticated via gateway key (e.g. JWT force_authenticate)
+        if not isinstance(home, Home):
+            return Response(
+                {"detail": "Gateway key authentication required."},
+                status=status.HTTP_403_FORBIDDEN,
+            )
+
         serializer = GatewayIngestSerializer(data=request.data)
         serializer.is_valid(raise_exception=True)
 
@@ -291,7 +307,10 @@ class GatewayIngestView(APIView):
         invalid_ids = sensor_ids - set(home_sensors.keys())
         if invalid_ids:
             return Response(
-                {"detail": "Some sensor IDs are invalid, inactive, or do not belong to this home."},
+                {
+                    "detail": "Some sensor IDs are invalid, inactive, or do not belong to this home.",
+                    "invalid_sensor_ids": [str(sid) for sid in invalid_ids],
+                },
                 status=status.HTTP_400_BAD_REQUEST,
             )
 

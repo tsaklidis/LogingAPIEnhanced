@@ -137,6 +137,7 @@ REST_FRAMEWORK = {
         "ingestion": "60/min",
         "readings": "120/min",
         "management": "30/min",
+        "registration": "5/hour",
     },
     "DEFAULT_SCHEMA_CLASS": "drf_spectacular.openapi.AutoSchema",
 }

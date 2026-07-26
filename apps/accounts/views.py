@@ -5,11 +5,19 @@ from .serializers import UserRegistrationSerializer, UserSerializer
 
 
 class UserRegistrationView(generics.CreateAPIView):
-    """Register a new user account. Restricted to admin users only."""
+    """
+    Register a new user account.
+
+    New accounts are created as inactive and require admin approval
+    before the user can log in. This prevents bot abuse while keeping
+    registration open.
+    """
 
     queryset = User.objects.all()
     serializer_class = UserRegistrationSerializer
-    permission_classes = [permissions.IsAdminUser]
+    permission_classes = [permissions.AllowAny]
+    authentication_classes = []
+    throttle_scope = "registration"
 
 
 class UserProfileView(generics.RetrieveUpdateAPIView):
