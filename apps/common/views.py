@@ -12,6 +12,12 @@ class PublicDashboardView(TemplateView):
     template_name = "public/dashboard.html"
 
 
+class PublicAPIDocsView(TemplateView):
+    """Public API documentation page."""
+
+    template_name = "public/api_docs.html"
+
+
 class HealthCheckView(APIView):
     """Health check endpoint for monitoring and Docker healthchecks."""
 

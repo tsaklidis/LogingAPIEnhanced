@@ -3,11 +3,12 @@ from django.urls import include, path
 from drf_spectacular.views import SpectacularAPIView, SpectacularSwaggerView
 from rest_framework.permissions import IsAdminUser
 
-from apps.common.views import PublicDashboardView
+from apps.common.views import PublicAPIDocsView, PublicDashboardView
 
 urlpatterns = [
     # Public dashboard (root)
     path("", PublicDashboardView.as_view(), name="public-dashboard"),
+    path("public-api/", PublicAPIDocsView.as_view(), name="public-api-docs"),
     path("admin/", admin.site.urls),
     # API v1
     path("api/v1/auth/", include("apps.accounts.urls")),

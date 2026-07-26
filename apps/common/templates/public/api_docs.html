@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Public API — Home Sensor Platform</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        *{box-sizing:border-box;margin:0;padding:0}
+        body{font-family:'Inter',sans-serif;background:#0c1222;color:#cbd5e1;min-height:100vh;padding:2rem 1rem}
+        .wrap{max-width:760px;margin:0 auto}
+        h1{font-size:1.3rem;font-weight:600;color:#e2e8f0;margin-bottom:0.3rem}
+        .sub{font-size:0.8rem;color:#64748b;margin-bottom:2rem}
+        h2{font-size:1rem;font-weight:600;color:#94a3b8;margin:2rem 0 0.8rem;padding-top:1rem;border-top:1px solid #1c2d4a}
+        h2:first-of-type{border-top:none;padding-top:0}
+        p{font-size:0.85rem;line-height:1.6;margin-bottom:0.8rem}
+        .endpoint{background:#111a2e;border:1px solid #1c2d4a;border-radius:8px;padding:1rem 1.2rem;margin-bottom:1rem}
+        .method{display:inline-block;font-size:0.7rem;font-weight:600;padding:0.2rem 0.5rem;border-radius:4px;margin-right:0.5rem;color:#0c1222}
+        .get{background:#22c55e}
+        .url{font-size:0.85rem;color:#38bdf8;font-family:monospace}
+        .desc{font-size:0.8rem;color:#94a3b8;margin-top:0.5rem}
+        .param{font-size:0.75rem;color:#64748b;margin-top:0.4rem}
+        .param code{background:#1c2d4a;padding:0.1rem 0.4rem;border-radius:3px;color:#cbd5e1;font-size:0.75rem}
+        .example{background:#0f172a;border:1px solid #1c2d4a;border-radius:6px;padding:0.8rem 1rem;margin-top:0.6rem;font-size:0.75rem;font-family:monospace;color:#94a3b8;overflow-x:auto;white-space:pre}
+        .note{background:#152035;border:1px solid #1c2d4a;border-radius:6px;padding:0.8rem 1rem;font-size:0.8rem;color:#94a3b8;margin:1.5rem 0}
+        a{color:#38bdf8;text-decoration:none}
+        a:hover{color:#7dd3fc}
+        .back{display:inline-block;margin-bottom:1.5rem;font-size:0.8rem}
+    </style>
+</head>
+<body>
+<div class="wrap">
+    <a href="/" class="back">← Dashboard</a>
+    <h1>Public API endpoints</h1>
+    <p class="sub">No authentication required. All responses are JSON.</p>
+
+    <div class="note">
+        Base URL: <code style="color:#38bdf8">/api/v1</code><br>
+        All public endpoints are read-only (GET) and do not require authentication.
+        They expose data only from sensors in spaces marked as public.
+    </div>
+
+    <h2>List public sensors</h2>
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <span class="url">/api/v1/public/sensors/</span>
+        <div class="desc">Returns all active sensors in public spaces.</div>
+        <div class="example">[
+  {
+    "id": "a1b2c3d4-...",
+    "name": "DS18B20",
+    "sensor_type": "DS18B20",
+    "space_name": "Balcony",
+    "home_name": "Home",
+    "home_location": "Kozani"
+  }
+]</div>
+    </div>
+
+    <h2>List sensor readings</h2>
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <span class="url">/api/v1/public/sensors/{sensor_id}/readings/</span>
+        <div class="desc">Returns paginated readings for a public sensor, newest first.</div>
+        <div class="param">
+            Query parameters:<br>
+            <code>from_date</code> — ISO 8601 datetime, filter readings after this time<br>
+            <code>to_date</code> — ISO 8601 datetime, filter readings before this time<br>
+            <code>limit</code> — page size (default 50, max 1000)<br>
+            <code>page</code> — page number
+        </div>
+        <div class="example">GET /api/v1/public/sensors/{id}/readings/?from_date=2026-07-26T00:00:00Z&limit=100
+
+{
+  "count": 248,
+  "next": "...?page=2",
+  "previous": null,
+  "results": [
+    {
+      "id": 1234,
+      "data": {"temperature": 25.6, "humidity": 48.2},
+      "recorded_at": "2026-07-26T12:30:00Z"
+    }
+  ]
+}</div>
+    </div>
+
+    <h2>Latest sensor reading</h2>
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <span class="url">/api/v1/public/sensors/{sensor_id}/readings/latest/</span>
+        <div class="desc">Returns the most recent reading for a public sensor. Served from cache for fast response.</div>
+        <div class="example">{
+  "id": 1234,
+  "data": {"temperature": 25.6, "humidity": 48.2},
+  "recorded_at": "2026-07-26T12:30:00Z"
+}</div>
+    </div>
+
+    <h2>Health check</h2>
+    <div class="endpoint">
+        <span class="method get">GET</span>
+        <span class="url">/api/v1/health/</span>
+        <div class="desc">Returns platform health status (database, cache).</div>
+        <div class="example">{
+  "status": "healthy",
+  "checks": {"database": "ok", "cache": "ok"}
+}</div>
+    </div>
+
+    <div class="note">
+        For authenticated API endpoints (sensor management, data ingestion), see the
+        <a href="https://github.com/tsaklidis/LogingAPIEnhanced">project documentation on GitHub</a>.
+    </div>
+</div>
+</body>
+</html>
+
