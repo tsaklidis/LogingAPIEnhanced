@@ -81,6 +81,41 @@ docker stats --no-stream --format "{{.Name}}|{{.CPUPerc}}|{{.MemUsage}}|{{.MemPe
       ('$NOW', 'docker_mem_pct', '$SHORT_NAME', $MEM_PERC_VAL);"
 done
 
+# --- Redis metrics ---
+REDIS_CONTAINER="sensor-platform-redis-1"
+REDIS_INFO=$(docker exec "$REDIS_CONTAINER" redis-cli INFO 2>/dev/null)
+
+if [ -n "$REDIS_INFO" ]; then
+    REDIS_MEM=$(echo "$REDIS_INFO" | grep "^used_memory:" | cut -d: -f2 | tr -d '\r')
+    REDIS_MEM_MB=$(awk "BEGIN {printf \"%.2f\", ${REDIS_MEM:-0}/1048576}")
+    REDIS_CLIENTS=$(echo "$REDIS_INFO" | grep "^connected_clients:" | cut -d: -f2 | tr -d '\r')
+    REDIS_HITS=$(echo "$REDIS_INFO" | grep "^keyspace_hits:" | cut -d: -f2 | tr -d '\r')
+    REDIS_MISSES=$(echo "$REDIS_INFO" | grep "^keyspace_misses:" | cut -d: -f2 | tr -d '\r')
+    REDIS_EXPIRED=$(echo "$REDIS_INFO" | grep "^expired_keys:" | cut -d: -f2 | tr -d '\r')
+    REDIS_EVICTED=$(echo "$REDIS_INFO" | grep "^evicted_keys:" | cut -d: -f2 | tr -d '\r')
+    REDIS_TOTAL_CONN=$(echo "$REDIS_INFO" | grep "^total_connections_received:" | cut -d: -f2 | tr -d '\r')
+    REDIS_OPS=$(echo "$REDIS_INFO" | grep "^instantaneous_ops_per_sec:" | cut -d: -f2 | tr -d '\r')
+    REDIS_KEYS=$(echo "$REDIS_INFO" | grep "^db0:" | sed 's/.*keys=\([0-9]*\).*/\1/')
+
+    # Hit ratio
+    TOTAL_OPS=$((${REDIS_HITS:-0} + ${REDIS_MISSES:-0}))
+    if [ "$TOTAL_OPS" -gt 0 ]; then
+        REDIS_HIT_RATIO=$(awk "BEGIN {printf \"%.2f\", (${REDIS_HITS}/${TOTAL_OPS})*100}")
+    else
+        REDIS_HIT_RATIO=0
+    fi
+
+    psql_exec "INSERT INTO system_metrics (recorded_at, metric_type, metric_name, metric_value) VALUES
+      ('$NOW', 'redis', 'memory_mb', $REDIS_MEM_MB),
+      ('$NOW', 'redis', 'connected_clients', ${REDIS_CLIENTS:-0}),
+      ('$NOW', 'redis', 'hit_ratio', $REDIS_HIT_RATIO),
+      ('$NOW', 'redis', 'ops_per_sec', ${REDIS_OPS:-0}),
+      ('$NOW', 'redis', 'expired_keys', ${REDIS_EXPIRED:-0}),
+      ('$NOW', 'redis', 'evicted_keys', ${REDIS_EVICTED:-0}),
+      ('$NOW', 'redis', 'total_connections', ${REDIS_TOTAL_CONN:-0}),
+      ('$NOW', 'redis', 'keys', ${REDIS_KEYS:-0});"
+fi
+
 # --- Cleanup old metrics (keep 7 days) ---
 psql_exec "DELETE FROM system_metrics WHERE recorded_at < NOW() - INTERVAL '7 days';"
 
