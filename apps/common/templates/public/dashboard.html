@@ -72,6 +72,13 @@
         .hero-card .hero-range .hi{color:#ef4444}
         .hero-card .hero-time{font-size:0.6rem;color:#475569;margin-top:0.5rem}
 
+        .prs-trend{margin-top:0.6rem;padding:0.4rem 0.6rem;border-radius:6px;font-size:0.65rem;display:flex;align-items:center;gap:0.4rem;flex-wrap:wrap}
+        .prs-trend.drop{background:rgba(251,191,36,.1);border:1px solid rgba(251,191,36,.3);color:#fbbf24}
+        .prs-trend.rise{background:rgba(74,222,128,.1);border:1px solid rgba(74,222,128,.3);color:#4ade80}
+        .prs-trend .trend-icon{font-size:0.85rem}
+        .prs-trend .trend-text{flex:1}
+        .prs-trend .trend-delta{font-weight:600;font-size:0.6rem;opacity:0.8}
+
         .charts-info{max-width:650px;margin:2rem auto 1.5rem;background:#152035;border:1px solid #1c2d4a;border-radius:6px;padding:0.7rem 1rem;font-size:0.8rem;color:#94a3b8;text-align:center}
 
         .charts-grid{display:grid;grid-template-columns:1fr 1fr;gap:1rem;max-width:950px;margin:0 auto 2rem;padding:0 1rem}
@@ -213,6 +220,21 @@ async function load() {
     const prsMin = prsVals.length ? Math.min(...prsVals).toFixed(2) : '--';
     const prsMax = prsVals.length ? Math.max(...prsVals).toFixed(2) : '--';
 
+    // Pressure trend (last 1 hour)
+    const oneHourAgo = Date.now() - 3600000;
+    const recentPrs = prsReadings.filter(r => new Date(r.recorded_at).getTime() >= oneHourAgo);
+    let prsTrend = null; // null = stable, 'drop' or 'rise'
+    let prsDelta = 0;
+    if (recentPrs.length >= 2) {
+        const firstVal = val(recentPrs[0].data, K.prs);
+        const lastVal = val(recentPrs[recentPrs.length - 1].data, K.prs);
+        if (firstVal !== null && lastVal !== null) {
+            prsDelta = lastVal - firstVal;
+            if (prsDelta <= -0.5) prsTrend = 'drop';
+            else if (prsDelta >= 0.5) prsTrend = 'rise';
+        }
+    }
+
     const lastDate = tempLatest ? fmtDateTime(tempLatest.recorded_at) : '--';
 
     // Build HTML
@@ -241,6 +263,11 @@ async function load() {
             </div>
             <div class="hero-val">${prsVal !== null ? prsVal.toFixed(2) : '--'}<span class="hero-unit">hPa</span></div>
             <div class="hero-range"><span class="lo">↓ ${prsMin}</span><span class="hi">↑ ${prsMax}</span></div>
+            ${prsTrend ? `<div class="prs-trend ${prsTrend}">
+                <span class="trend-icon">${prsTrend === 'drop' ? '🌧️ ↘' : '☀️ ↗'}</span>
+                <span class="trend-text">${prsTrend === 'drop' ? 'Πτώση πίεσης — πιθανή βροχή' : 'Άνοδος πίεσης — βελτίωση καιρού'}</span>
+                <span class="trend-delta">${prsDelta > 0 ? '+' : ''}${prsDelta.toFixed(1)} hPa/ώρα</span>
+            </div>` : ''}
             <div class="hero-time">${prsLatest ? fmtDateTime(prsLatest.recorded_at) : ''}</div>
         </div>
     </div>`;
