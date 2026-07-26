@@ -128,6 +128,14 @@ function fmtDateTime(iso) {
     return new Date(iso).toLocaleString('el-GR', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit'});
 }
 
+// Hardcoded sensor IDs
+const SENSORS = {
+    temp: '37da04af-9237-4c80-8273-bfa4e2d87089',
+    prs:  '5f1900be-a6fb-4e2e-be08-76f7d2384e1b',
+    sig:  '63d7f444-144f-4365-8802-fbe8ac2c01bf',
+    sys:  'a6197ed7-c5c8-4d11-897a-67801d99b2b6'
+};
+
 const K = {
     temp: ['temperature','temp','ds18b20'],
     prs: ['pressure','prs','bmp280','bmp180','bar','hPa','barometric_pressure'],
@@ -169,34 +177,16 @@ function makeChart(canvasId, data, labels, color) {
 }
 
 async function load() {
-    const sensors = await get(`${API}/public/sensors/`);
-    if (!sensors || !sensors.length) {
-        document.getElementById('app').innerHTML = '<div class="error">Δεν υπάρχουν δημόσιοι αισθητήρες.</div>';
-        return;
-    }
+    const sensorIds = Object.values(SENSORS);
 
-    const loc = sensors[0].home_location || '';
-
-    // Identify sensors by name/type
-    let tempS = null, prsS = null, sysS = null, sigS = null;
-    for (const s of sensors) {
-        const n = s.name.toLowerCase(), t = (s.sensor_type||'').toLowerCase();
-        if (!tempS && (n.includes('ds18b20') || t.includes('ds18b20'))) tempS = s;
-        if (!prsS && (n.includes('bmp') || t.includes('bmp') || n.includes('pressure') || t.includes('pressure'))) prsS = s;
-        if (!sysS && (n.includes('system') || n.includes('cpu'))) sysS = s;
-        if (!sigS && (n.includes('wifi') || n.includes('signal'))) sigS = s;
-    }
-
-    // Fetch latest for all found sensors
-    const found = [tempS, prsS, sysS, sigS].filter(Boolean);
-    const uniqueIds = [...new Set(found.map(s => s.id))];
+    // Fetch latest readings for all hardcoded sensors
     const latestMap = {};
-    await Promise.all(uniqueIds.map(async id => {
+    await Promise.all(sensorIds.map(async id => {
         latestMap[id] = await get(`${API}/public/sensors/${id}/readings/latest/`);
     }));
 
-    const tempLatest = tempS ? latestMap[tempS.id] : null;
-    const prsLatest = prsS ? latestMap[prsS.id] : null;
+    const tempLatest = latestMap[SENSORS.temp];
+    const prsLatest = latestMap[SENSORS.prs];
 
     const tempVal = tempLatest ? val(tempLatest.data, K.temp) : null;
     const prsVal = prsLatest ? val(prsLatest.data, K.prs) : null;
@@ -204,16 +194,16 @@ async function load() {
     // Fetch last 12h readings for all sensors
     const since = new Date(Date.now() - 12 * 3600000).toISOString();
     const readingsMap = {};
-    await Promise.all(uniqueIds.map(async id => {
+    await Promise.all(sensorIds.map(async id => {
         const r = await get(`${API}/public/sensors/${id}/readings/?from_date=${since}&limit=1000`);
         const arr = r ? (r.results || r) : [];
         readingsMap[id] = arr.sort((a,b) => new Date(a.recorded_at) - new Date(b.recorded_at));
     }));
 
-    const tempReadings = tempS ? readingsMap[tempS.id] || [] : [];
-    const prsReadings = prsS ? readingsMap[prsS.id] || [] : [];
-    const sysReadings = sysS ? readingsMap[sysS.id] || [] : [];
-    const sigReadings = sigS ? readingsMap[sigS.id] || [] : [];
+    const tempReadings = readingsMap[SENSORS.temp] || [];
+    const prsReadings = readingsMap[SENSORS.prs] || [];
+    const sysReadings = readingsMap[SENSORS.sys] || [];
+    const sigReadings = readingsMap[SENSORS.sig] || [];
 
     // Compute min/max
     const tempVals = tempReadings.map(r => val(r.data, K.temp)).filter(v => v !== null);
@@ -288,10 +278,10 @@ async function load() {
         <div class="accent"></div>
         <div class="info-header"><span class="info-icon">ℹ️</span> Πληροφορίες</div>
         <div class="info-grid">
-            <div class="info-item"><div class="info-label">Πόλη</div><div class="info-val">${loc || '--'}</div></div>
+            <div class="info-item"><div class="info-label">Πόλη</div><div class="info-val">Κοζάνη</div></div>
             <div class="info-item"><div class="info-label">Ανανέωση</div><div class="info-val">Κάθε 5 λεπτά</div></div>
             <div class="info-item"><div class="info-label">Τελευταία μέτρηση</div><div class="info-val">${lastDate}</div></div>
-            <div class="info-item"><div class="info-label">Σύνολο αισθητήρων</div><div class="info-val">${sensors.length}</div></div>
+            <div class="info-item"><div class="info-label">Σύνολο αισθητήρων</div><div class="info-val">${sensorIds.length}</div></div>
             <div class="info-divider"></div>
             <div class="info-item"><div class="info-label">Ανοιχτά δεδομένα</div><div class="info-val"><a href="/public-api/">Πληροφορίες API</a></div></div>
             <div class="info-item"><div class="info-label">Κώδικας στο Github</div><div class="info-val"><a href="https://github.com/tsaklidis/LogingAPIEnhanced">LogingAPI Project</a></div></div>
