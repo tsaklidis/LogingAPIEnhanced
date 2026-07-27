@@ -69,12 +69,17 @@ services:
       - GF_ALERTING_ENABLED=false
       - GF_EXPLORE_ENABLED=false
       - GF_PLUGIN_CATALOG_URL=https://disabled.invalid
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
     deploy:
       resources:
         limits:
           memory: 200M
     volumes:
       - grafana_data:/var/lib/grafana
+      - ./grafana/provisioning:/etc/grafana/provisioning:ro
+      - ./grafana/dashboards:/var/lib/grafana/dashboards:ro
     depends_on:
       db:
         condition: service_healthy
