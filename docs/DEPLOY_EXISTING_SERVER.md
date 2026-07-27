@@ -31,6 +31,17 @@ docker compose exec web python manage.py createsuperuser
 
 ---
 
+## ⚠️ Important: No Manual File Edits on Server
+
+The production server is deployed via **GitHub Actions** (`git push` → CI → `deploy.sh`).
+
+**Do NOT** manually edit, rsync, or copy files on the server that are tracked by git. This causes `git pull` to fail with merge conflicts and breaks automated deploys.
+
+**Safe to edit on server:** Only `.env` (not tracked by git).  
+**Everything else:** Edit locally → commit → push → let GitHub Actions deploy.
+
+---
+
 ## Table of Contents
 
 1. [Prerequisites](#1-prerequisites)

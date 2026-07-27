@@ -1,11 +1,18 @@
 #!/bin/bash
 # deploy.sh — Pull latest code from GitHub and redeploy
+#
+# ⚠️  IMPORTANT: Do NOT manually edit files on the server (rsync, nano, etc.)
+# that are tracked by git. The GitHub Actions deploy pulls from origin/main
+# and will FAIL if there are uncommitted local changes. All code changes
+# must go through git push → GitHub Actions.
+#
 set -e
 
 cd /home/dulano/sensor-platform
 export DOCKER_CONFIG=/home/dulano/.docker
 
 echo "📥 Pulling latest code from GitHub..."
+git reset --hard origin/main 2>/dev/null || true
 git pull origin main
 
 echo ""
