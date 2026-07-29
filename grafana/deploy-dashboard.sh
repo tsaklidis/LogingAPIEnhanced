@@ -16,7 +16,7 @@
 set -euo pipefail
 
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-DASHBOARD_FILE="${SCRIPT_DIR}/dashboards/home-sensors.json"
+DASHBOARD_FILE="${1:-${SCRIPT_DIR}/dashboards/home-sensors.json}"
 
 # Remote server
 SSH_HOST="dulano@creations"
