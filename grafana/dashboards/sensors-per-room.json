@@ -29,7 +29,7 @@
       "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
       "title": "💧 Humidity",
       "type": "stat",
-      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"value\" FROM sensor_readings WHERE sensor_id = 'dfc251f4-911d-4460-9376-b81705250563' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", COALESCE((data->>'humidity')::float, (data->>'value')::float) AS \"value\" FROM sensor_readings WHERE sensor_id = 'dfc251f4-911d-4460-9376-b81705250563' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
@@ -79,7 +79,7 @@
       "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single", "sort": "none" } },
       "title": "💧 Humidity History",
       "type": "timeseries",
-      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"Σαλόνι\" FROM sensor_readings WHERE sensor_id = 'dfc251f4-911d-4460-9376-b81705250563' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", COALESCE((data->>'humidity')::float, (data->>'value')::float) AS \"Σαλόνι\" FROM sensor_readings WHERE sensor_id = 'dfc251f4-911d-4460-9376-b81705250563' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
@@ -137,7 +137,7 @@
       "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
       "title": "💧 Humidity",
       "type": "stat",
-      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"value\" FROM sensor_readings WHERE sensor_id = '65c6708b-324e-44be-9ed9-a2709b0b97a7' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", COALESCE((data->>'humidity')::float, (data->>'value')::float) AS \"value\" FROM sensor_readings WHERE sensor_id = '65c6708b-324e-44be-9ed9-a2709b0b97a7' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
@@ -187,7 +187,7 @@
       "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
       "title": "💧 Humidity History",
       "type": "timeseries",
-      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"Αποθήκη\" FROM sensor_readings WHERE sensor_id = '65c6708b-324e-44be-9ed9-a2709b0b97a7' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", COALESCE((data->>'humidity')::float, (data->>'value')::float) AS \"Αποθήκη\" FROM sensor_readings WHERE sensor_id = '65c6708b-324e-44be-9ed9-a2709b0b97a7' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
@@ -245,7 +245,7 @@
       "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
       "title": "💧 Humidity",
       "type": "stat",
-      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"value\" FROM sensor_readings WHERE sensor_id = '76742e65-0d8e-420d-ba06-7c337644d423' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", COALESCE((data->>'humidity')::float, (data->>'value')::float) AS \"value\" FROM sensor_readings WHERE sensor_id = '76742e65-0d8e-420d-ba06-7c337644d423' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
@@ -295,7 +295,7 @@
       "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
       "title": "💧 Humidity History",
       "type": "timeseries",
-      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"Office\" FROM sensor_readings WHERE sensor_id = '76742e65-0d8e-420d-ba06-7c337644d423' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", COALESCE((data->>'humidity')::float, (data->>'value')::float) AS \"Office\" FROM sensor_readings WHERE sensor_id = '76742e65-0d8e-420d-ba06-7c337644d423' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
@@ -353,7 +353,7 @@
       "options": { "colorMode": "background", "graphMode": "area", "reduceOptions": { "calcs": ["lastNotNull"], "fields": "", "values": false }, "showPercentChange": true, "textMode": "auto" },
       "title": "💧 Humidity",
       "type": "stat",
-      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"value\" FROM sensor_readings WHERE sensor_id = 'c393edb9-4756-4337-9af1-c69f7e77af6f' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", COALESCE((data->>'humidity')::float, (data->>'value')::float) AS \"value\" FROM sensor_readings WHERE sensor_id = 'c393edb9-4756-4337-9af1-c69f7e77af6f' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
@@ -403,7 +403,7 @@
       "options": { "legend": { "calcs": ["lastNotNull", "min", "max", "mean"], "displayMode": "table", "placement": "bottom", "showLegend": true }, "tooltip": { "mode": "single" } },
       "title": "💧 Humidity History",
       "type": "timeseries",
-      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", (data->>'humidity')::float AS \"Bedroom\" FROM sensor_readings WHERE sensor_id = 'c393edb9-4756-4337-9af1-c69f7e77af6f' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
+      "targets": [{ "rawSql": "SELECT recorded_at AS \"time\", COALESCE((data->>'humidity')::float, (data->>'value')::float) AS \"Bedroom\" FROM sensor_readings WHERE sensor_id = 'c393edb9-4756-4337-9af1-c69f7e77af6f' AND $__timeFilter(recorded_at) ORDER BY recorded_at", "format": "time_series", "rawQuery": true, "refId": "A" }]
     },
     {
       "datasource": { "type": "grafana-postgresql-datasource", "uid": "sensor-platform-postgres" },
