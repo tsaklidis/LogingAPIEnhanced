@@ -128,11 +128,11 @@ function val(data, keys) {
 }
 
 function fmtTime(iso) {
-    return new Date(iso).toLocaleTimeString('el-GR', {hour:'2-digit', minute:'2-digit'});
+    return new Date(iso).toLocaleTimeString('el-GR', {hour:'2-digit', minute:'2-digit', timeZone:'Europe/Athens'});
 }
 
 function fmtDateTime(iso) {
-    return new Date(iso).toLocaleString('el-GR', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit'});
+    return new Date(iso).toLocaleString('el-GR', {day:'2-digit', month:'2-digit', year:'numeric', hour:'2-digit', minute:'2-digit', second:'2-digit', timeZone:'Europe/Athens'});
 }
 
 // Hardcoded sensor IDs
@@ -251,7 +251,7 @@ async function load() {
                 <div class="hero-icon">🌡</div>
                 <div><div class="hero-label">Θερμοκρασία</div><div class="hero-sensor">DS18B20</div></div>
             </div>
-            <div class="hero-val">${tempVal !== null ? tempVal.toFixed(1) : '--'}<span class="hero-unit">°C</span></div>
+            <div class="hero-val">${tempVal !== null ? tempVal.toFixed(2) : '--'}<span class="hero-unit">°C</span></div>
             <div class="hero-range"><span class="lo">↓ ${tempMin}°</span><span class="hi">↑ ${tempMax}°</span></div>
             <div class="hero-time">${tempLatest ? fmtDateTime(tempLatest.recorded_at) : ''}</div>
         </div>
