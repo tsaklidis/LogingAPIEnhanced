@@ -21,6 +21,11 @@ from .serializers import (
     SensorSerializer,
 )
 
+# Cache TTL for latest readings (seconds).
+# Keeps cached responses fresh — even if an ingestion fails to update the
+# cache, stale data will expire and the next request hits the DB.
+LATEST_READING_CACHE_TTL = 120
+
 
 class SensorListCreateView(generics.ListCreateAPIView):
     """List sensors for a space or create a new one."""
@@ -116,6 +121,7 @@ class IngestView(APIView):
         cache.set(
             f"sensor:{sensor.id}:latest",
             SensorReadingSerializer(reading).data,
+            timeout=LATEST_READING_CACHE_TTL,
         )
 
         return Response(
@@ -155,6 +161,7 @@ class BulkIngestView(APIView):
             cache.set(
                 f"sensor:{sensor.id}:latest",
                 SensorReadingSerializer(latest).data,
+                timeout=LATEST_READING_CACHE_TTL,
             )
 
         return Response(
@@ -199,7 +206,7 @@ class SensorReadingLatestView(APIView):
             )
 
         data = SensorReadingSerializer(reading).data
-        cache.set(f"sensor:{sensor_pk}:latest", data)
+        cache.set(f"sensor:{sensor_pk}:latest", data, timeout=LATEST_READING_CACHE_TTL)
         return Response(data)
 
 
@@ -246,7 +253,7 @@ class PublicSensorReadingLatestView(APIView):
             )
 
         data = SensorReadingSerializer(reading).data
-        cache.set(f"sensor:{sensor_pk}:latest", data)
+        cache.set(f"sensor:{sensor_pk}:latest", data, timeout=LATEST_READING_CACHE_TTL)
         return Response(data)
 
 
@@ -340,7 +347,8 @@ class GatewayIngestView(APIView):
             {
                 f"sensor:{sid}:latest": SensorReadingSerializer(reading).data
                 for sid, reading in latest_per_sensor.items()
-            }
+            },
+            timeout=LATEST_READING_CACHE_TTL,
         )
 
         return Response(
